@@ -1,7 +1,7 @@
+import { and, eq, lte } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
-import { Cup, Event, Match, Player, PlayerLink } from "../../db/schema";
-import { and, eq, lte } from "drizzle-orm";
+import { Cup, Event, Match, Player } from "../../db/schema";
 import {
   goalTypes,
   goalTypesOG,
@@ -16,8 +16,7 @@ export async function overall(req: Request) {
       team: string;
       elites: Set<string> | number;
       babbies: Set<string> | number;
-      cups: number;
-      er: number;
+      cups: Set<string> | number;
       pld: number;
       w: number;
       d: number;
@@ -56,8 +55,7 @@ export async function overall(req: Request) {
           team, //
           elites: new Set(), //
           babbies: new Set(), //
-          cups: 0, //
-          er: 0, //
+          cups: new Set(), //
           w: 0, //
           d: 0, //
           l: 0, //
@@ -88,9 +86,11 @@ export async function overall(req: Request) {
       if (cup.cupType == 1) {
         if (typeof stat.elites !== "number")
           stat.elites.add(cup.season + cup.year);
-      } else {
+          stat.cups.add(cup.season + cup.year);
+      } else if (cup.cupType == 3) {
         if (typeof stat.babbies !== "number")
           stat.babbies.add(cup.season + cup.year);
+          stat.cups.add(cup.season + cup.year);
       }
       if (match.winningTeam !== "") {
         stat.pld++;
@@ -146,36 +146,21 @@ export async function overall(req: Request) {
       team.elites = Array.from(team.elites).length;
     if (typeof team.babbies !== "number")
       team.babbies = Array.from(team.babbies).length;
-    team.cups = team.elites + team.babbies;
+    if (typeof team.cups !== "number")
+      team.cups = Array.from(team.cups).length;
     team.p = team.w * 3 + team.d;
     if (team.pld > 0) {
-      team.er = Math.round((team.elites / team.cups) * 100);
-      team.eliteEff = (Math.round(team.eliteW / (team.eliteW + team.eliteL) * 10000) / 100)
-        .toString()
-        .padEnd(3, ".")
-        .padEnd(5, "0");
-      team.e = (Math.round((team.w / team.pld) * 10000) / 100)
-        .toString()
-        .padEnd(3, ".")
-        .padEnd(5, "0");
-      team.ap = (Math.round((team.p / team.pld) * 100) / 100)
-        .toString()
-        .padEnd(2, ".")
-        .padEnd(4, "0");
-      team.aga = (Math.round((team.ga / team.pld) * 100) / 100)
-        .toString()
-        .padEnd(2, ".")
-        .padEnd(4, "0");
-      team.agf = (Math.round((team.gf / team.pld) * 100) / 100)
-        .toString()
-        .padEnd(2, ".")
-        .padEnd(4, "0");
+      team.e = Number(((team.w / team.pld) * 100).toFixed(2));
+      team.ap = Number((team.p / team.pld).toFixed(2));
+      team.aga = Number((team.ga / team.pld).toFixed(2));
+      team.agf = Number((team.gf / team.pld).toFixed(2));
       team.gd = team.gf - team.ga;
-      team.agd = Math.round((team.gd / team.pld) * 1000) / 1000;
+      team.agd = Number((team.gd / team.pld).toFixed(3));
       team.tc = team.y + team.r;
-      team.ac = (Math.round((team.tc / team.pld) * 1000) / 1000)
-        .toString()
-        .padEnd(5, "0");
+      team.ac = Number((team.tc / team.pld).toFixed(3));
+    }
+    if (team.eliteW + team.eliteL > 0) {
+      team.eliteEff = Number((team.eliteW / (team.eliteW + team.eliteL) * 100).toFixed(2));
     }
     const players = await db
       .select()
@@ -196,15 +181,17 @@ export async function overall(req: Request) {
       lastCup = player.cupID;
     }
     team.np = Object.keys(playerLinks).length;
+    if (Object.values(playerLinks).length > 0) {
     team.at =
       Object.values(playerLinks).reduce((a, b) => a + b) /
       Object.values(playerLinks).length;
-    team.atp = team.at / team.cups;
-    team.at = Math.round(team.at * 100) / 100;
-    team.atp = (Math.round(team.atp * 1000) / 10)
-      .toString()
-      .padEnd(3, ".")
-      .padEnd(5, "0");
+    } else {
+    team.at = 0;
+    }
+    if (team.cups > 0) {
+      team.atp = Number(((team.at / team.cups) * 100).toFixed(2));
+    }
+    team.at = Number(team.at.toFixed(2));
     team.fr = players.filter(
       (x) => x.cup.cupID == lastCup && firstCupPlayers.includes(x.player.linkID)
     ).length;
@@ -212,10 +199,9 @@ export async function overall(req: Request) {
   return {
     headers: [
       "Team",
-      "Elites",
-      "Babbies",
+      "Leagues",
+      "Qualifiers",
       "Cups",
-      "Elite<br>Ratio",
       "W",
       "D",
       "L",

@@ -18,7 +18,6 @@
 			sortField = field;
 		}
 		data.data.sort((a, b) => {
-			console.log(a, b);
 			let res = 0;
 			let af = Object.values(a)[field];
 			let bf = Object.values(b)[field];
@@ -64,7 +63,7 @@
 							{#if j == 0}
 							<td style:text-align='left'><TeamIcon team={field.toString()}/><TeamLink team={field.toString()} /></td>
 							{:else}
-							<td>{j==16 && field > 0 ? '+' : ''}{field}{[4,9].includes(j) ? '%' : ''}</td>
+							<td>{j==16 && field > 0 ? '+' : ''}{field}{[8].includes(j) ? '%' : ''}</td>
 							{/if}
 						{/each}
 					</tr>
