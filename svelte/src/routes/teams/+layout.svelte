@@ -119,7 +119,7 @@
 		'trick',
 		'ttgg',
 		'twg',
-		'uma',
+		'umaJP',
 		'utg',
 		'vgt',
 		'vitagen',
