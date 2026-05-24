@@ -1,19 +1,19 @@
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { api } from '$lib/helper';
-	import { cupShort, cupToBooru, getBooru } from '$lib/helper';
-	import Gallery from '$lib/gallery.svelte';
-	import TeamRoster from '$lib/teamRoster.svelte';
-	import TeamIcon from '$lib/teamIcon.svelte';
-	import Records from '$lib/records.svelte';
+	import { browser } from '$app/environment';
+	//import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Datetime from '$lib/datetime.svelte';
-	//@ts-ignore
-	import MdAssessment from 'svelte-icons/md/MdAssessment.svelte';
-	//@ts-ignore
-	import FaWikipediaW from 'svelte-icons/fa/FaWikipediaW.svelte';
+	import Gallery from '$lib/gallery.svelte';
+	import { api } from '$lib/helper';
 	import MatchDetails from '$lib/matches/matchDetails.svelte';
+	import Records from '$lib/records.svelte';
 	import { sidebarStore } from '$lib/sideBarStore';
-	//let data;
+	import TeamIcon from '$lib/teamIcon.svelte';
+	import TeamRoster from '$lib/teamRoster.svelte';
+//@ts-ignore
+	import MdAssessment from 'svelte-icons/md/MdAssessment.svelte';
+//@ts-ignore
+	import FaWikipediaW from 'svelte-icons/fa/FaWikipediaW.svelte';
 	let data: {
 		statsHtml: string;
 		matchesHtml: any[];
@@ -44,27 +44,48 @@
 			};
 		}[];
 		date: string;
-	} = {};
+	} = $state({});
 	let sortData;
 	let id = '';
-	let imgs;
-	let records: Promise<any>;
-	let team: string;
-	page.subscribe((p) => {
+	let imgs = $state('');
+	let records: Promise<any> | undefined = $state(undefined);
+	let team: string = $state('');
+	/*page.subscribe((p) => {
 		if (id !== p.url.pathname) {
 			if (!p.url.pathname.includes('team')) return;
 			id = p.url.pathname;
 			team = $page.url.pathname.replace('/', '').substring(6);
-			data = api($page.url.pathname).then((r) => {
-				imgs = getBooru('/' + team + '/');
-				sortData = r;
-				records = api('/records/teams/' + team);
-				return r;
-			});
+			if (browser) {
+				data = api(fetch, $page.url.pathname).then((r) => {
+					imgs = '';//getBooru('/' + team + '/');
+					sortData = r;
+						records = api(fetch, '/records/teams/' + team);
+						return r;
+					});
+			}
 			$sidebarStore = `/${team}/`;
 		}
+	});*/
+	$effect(() => {
+		if (id !== page.url.pathname) {
+		if (!page.url.pathname.includes('team')) return;
+
+		id = page.url.pathname;
+		team = page.url.pathname.replace('/', '').substring(6);
+
+		if (browser) {
+			data = api(fetch, page.url.pathname).then((r) => {
+			sortData = r;
+			records = api(fetch, '/records/teams/' + team);
+			return r;
+			});
+		}
+
+		$sidebarStore = `/${team}/`;
+		}
 	});
-	let copyTimer = 0;
+
+	let copyTimer = $state(0);
 	const copyTimerMax = 3;
 	let sortAsc = false;
 	let sortField = '';
@@ -99,7 +120,7 @@
 		});
 		data = sortData;
 	};
-	let matchID = 0;
+	let matchID = $state(0);
 	setInterval(() => {
 		if (copyTimer > 0) copyTimer -= 0.01;
 	}, 10);
@@ -164,6 +185,7 @@ ${data.matchesHtml.map((i) => i.wiki).join('\n')}
 							>
 						</h3>
 						<table>
+							<tbody>
 							<tr>
 								<th>Cup</th>
 								<th>Round</th>
@@ -192,6 +214,7 @@ ${data.matchesHtml.map((i) => i.wiki).join('\n')}
 									{@html row.num}
 								</tr>
 							{/each}
+							<tbody>
 						</table>
 					</div>
 					<div>
@@ -203,6 +226,7 @@ ${data.matchesHtml.map((i) => i.wiki).join('\n')}
 					<h3 id="rostertimeline">Roster Timeline</h3>
 					<div id="rosterContainer">
 						<table id="tbl_roster">
+							<tbody>
 							{#each data.roster.header as headerRow, i}
 								<tr style="position:sticky;top:calc({i * 1.2}rem;z-index:1">
 									{#each headerRow as header}
@@ -238,6 +262,7 @@ ${data.matchesHtml.map((i) => i.wiki).join('\n')}
 								</tr>
 							{/each}
 							{@html data.roster.footer}
+							</tbody>
 						</table>
 					</div>
 				</div>

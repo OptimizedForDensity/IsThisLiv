@@ -15,11 +15,13 @@
 	export let data2: {
 		matches: {
 			kos: Array<Round>;
+			sr: Array<Round>;
 		};
 	};
 	let data: {
 		matches: {
 			kos: Array<Round>;
+			sr: Array<Round>;
 		};
 	} = JSON.parse(JSON.stringify(data2));
 	if (data.matches.kos.length > 0) {
@@ -40,7 +42,6 @@
 			break;
 		}
 	}
-	console.log(data.matches.kos);
 	let type = 'single';
 	let double: Record<string, Round> = {};
 	if (data.matches.kos.map((x) => x.name).includes('Grand Final')) {

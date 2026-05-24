@@ -2,15 +2,15 @@
 	import { api } from "$lib/helper";
 
     let outputText = '';
-    
+
     let cup = 0;
-    let cups = api('/cups/list').then((d)=>{
+    let cups = api(fetch, '/cups/list').then((d)=>{
         cup = d[0].cupID
         return d
     });
     async function calculate(){
         outputText = 'Calculating...'
-        api('/ff/calculate',{cupID:cup}).then((d)=>{
+        api(fetch, '/ff/calculate',{cupID:cup}).then((d)=>{
             if(d.error){
                 outputText = d.error;
             } else {
@@ -23,7 +23,7 @@
     let textArea = ''
     async function getMainPage(){
         outputText = 'Calculating...'
-        api('/ff/mainWiki',{cupID:cup}).then((d)=>{
+        api(fetch, '/ff/mainWiki',{cupID:cup}).then((d)=>{
             if(d.error){
                 outputText = d.error;
             } else {
@@ -36,7 +36,7 @@
     }
     async function getPlayerPage(){
         outputText = 'Calculating...'
-        api('/ff/playerWiki',{cupID:cup}).then((d)=>{
+        api(fetch, '/ff/playerWiki',{cupID:cup}).then((d)=>{
             if(d.error){
                 outputText = d.error;
             } else {

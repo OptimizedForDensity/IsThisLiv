@@ -1,13 +1,12 @@
+import { and, eq, or } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../../db";
 import { Cup, Match, Team } from "../../../db/schema";
-import { and, eq, or } from "drizzle-orm";
 import {
-  cupLink,
-  cupShort,
-  dateFormat,
   DeepSet,
-  teamLink,
+  cupLink,
+  dateFormat,
+  teamLink
 } from "../../../lib/helper";
 
 export async function teamMatchup(req: Request) {
@@ -59,7 +58,7 @@ export async function teamMatchup(req: Request) {
         )
         .orderBy(Match.utcTime);
       if (match.length) {
-        teamMatrix[t1][t2] = await cupLink(match[0].cup, { format: "short" });
+        teamMatrix[t1][t2] = await cupLink(match[0].cup, { format: "veryshort" });
         mostPlayed[t1].c++;
         mostPlayed[t2].c++;
         oldest.add({

@@ -1,18 +1,17 @@
 <script lang='ts'>
 	import { api } from "$lib/helper";
-	import TeamIcon from "$lib/teamIcon.svelte";
-	import TeamLink from "$lib/teamLink.svelte";
-    // @ts-ignore
-    import MdAdd from 'svelte-icons/md/MdAdd.svelte'
 	// @ts-ignore
-	import MdRemove from 'svelte-icons/md/MdRemove.svelte'
+    import MdAdd from 'svelte-icons/md/MdAdd.svelte';
+	// @ts-ignore
+	import MdRemove from 'svelte-icons/md/MdRemove.svelte';
 	import Fantasyplayer from "./fantasyplayer.svelte";
     export let cupID:number;
     export let expanded:Set<string> = new Set()
-    let data = api('/ff/cup/' + cupID)
+    let data = api(fetch, '/ff/cup/' + cupID)
 </script>
 {#await data then data}
     <table style:border-collapse='collapse'>
+	<tbody>
         <tr>
             <th colspan=3>Team</th>
             <th style:width='3rem'>R1</th>
@@ -21,12 +20,14 @@
             <th style:width='3rem'>R4</th>
             <th></th>
             <th colspan=3></th>
+            <th style:width='3rem'>SR1</th>
+            <th style:width='3rem'>SR2</th>
             <th style:width='3rem'>Ro16</th>
             <th style:width='3rem'>QF</th>
             <th style:width='3rem'>SF</th>
             <th style:width='3rem'>3rd/<br>Finals</th>
             <th>Total</th>
-        </tr>  
+        </tr>
     {#each data as team}
     <tr>
         <th class='teamName' on:click={()=>{
@@ -49,6 +50,8 @@
         <td>{team.points.r4}</td>
         <th></th>
         <th colspan=3></th>
+        <td>{team.points.sr1}</td>
+        <td>{team.points.sr2}</td>
         <td>{team.points.ro16}</td>
         <td>{team.points.qf}</td>
         <td>{team.points.sf}</td>
@@ -68,6 +71,8 @@
                 <th  style:width='3rem' style:text-align='right'>{team.group.start[i].points.tot ?? '-'}</th>
                 {#if team.ko.start[i]}
                     <Fantasyplayer player={team.ko.start[i]}/>
+                    <td>{team.ko.start[i].points.sr1 ?? '-'}</td>
+                    <td>{team.ko.start[i].points.sr2 ?? '-'}</td>
                     <td>{team.ko.start[i].points.ro16 ?? '-'}</td>
                     <td>{team.ko.start[i].points.qf ?? '-'}</td>
                     <td>{team.ko.start[i].points.sf ?? '-'}</td>
@@ -75,7 +80,7 @@
                 {/if}
             </tr>
             {/each}
-            <tr><th colspan=2 /><th><u>Bench</u></th></tr>
+            <tr><th colspan=2></th><th><u>Bench</u></th></tr>
             {#each Array(6) as _,i}
             <tr  style:background='var(--bg-c1)'>
                 <Fantasyplayer player={team.group.bench[i]}/>
@@ -86,6 +91,8 @@
                 <th style:text-align='right'>{team.group.bench[i].points.tot ?? '-'}</th>
                 {#if team.ko.bench[i]}
                      <Fantasyplayer player={team.ko.bench[i]}/>
+                    <td>{team.ko.bench[i].points.sr1 ?? '-'}</td>
+                    <td>{team.ko.bench[i].points.sr2 ?? '-'}</td>
                     <td>{team.ko.bench[i].points.ro16 ?? '-'}</td>
                     <td>{team.ko.bench[i].points.qf ?? '-'}</td>
                     <td>{team.ko.bench[i].points.sf ?? '-'}</td>
@@ -98,10 +105,11 @@
         {/if}
     {/if}
 {/each}
+    </tbody>
     </table>
 {/await}
 <style>
-    .ffIcon {		
+    .ffIcon {
         height:1rem;
         width:1rem;
         padding:0;

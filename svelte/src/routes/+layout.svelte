@@ -1,18 +1,18 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { sineIn } from 'svelte/easing';
+	import { DeepSet } from '$lib/deepSet';
+	import { api } from '$lib/helper';
+	import { User } from '$lib/user';
 	import { Drawer } from 'flowbite-svelte';
-	//@ts-ignore
+	import { onMount } from 'svelte';
+	import { sineIn } from 'svelte/easing';
+//@ts-ignore
 	import MdSettings from 'svelte-icons/md/MdSettings.svelte';
-	//@ts-ignore
+//@ts-ignore
 	import MdMenu from 'svelte-icons/md/MdMenu.svelte';
 	import SettingsModal from './settingsModal.svelte';
-	import { User } from '$lib/user';
-	import { DeepSet } from '$lib/deepSet';
-	import {onMount} from 'svelte';
-	import { api } from '$lib/helper';
 	let width: any;
-	let drawerHidden = true;
+	let drawerOpen = false;
 	let transitionParams = {
 		x: -320,
 		duration: 0,
@@ -27,7 +27,7 @@
 		['/records', 'Records/Stats'],
 		['/ff', 'Fantasy League'],
 		['/files','Files'],
-		['/booru/','Booru'],
+		//['/booru/','Booru'],
 		['https://implyingrigged.info/', 'Wiki'],
 		['https://cytu.be/r/the4chancup', 'Stream'],
 		['https://implying.fun', 'VODs']
@@ -48,7 +48,7 @@
 		try {
 			let data = localStorage.getItem('user');
 			if (typeof data == 'string') {
-				let res = await api('/sql/user/logintoken', {
+				let res = await api(fetch, '/sql/user/logintoken', {
 					token: JSON.parse(data)
 				});
 				if (res.user) {
@@ -83,13 +83,13 @@
 	backdrop={true}
 	transitiontype="fly"
 	{transitionParams}
-	bind:hidden={drawerHidden}
+	bind:open={drawerOpen}
 	id="sidebar1"
 >
 	<div id="mainDrawer">
 		{#key $User}
 			{#each Array.from(links) as link}
-				<a href={link[0]} on:click={() => (drawerHidden = true)}>{link[1]}</a>
+				<a href={link[0]} on:click={() => (drawerOpen = false)}>{link[1]}</a>
 			{/each}
 		{/key}
 	</div>
@@ -97,7 +97,7 @@
 <nav id="Nav">
 	{#if width <= 1000}
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<icon on:click={() => (drawerHidden = !drawerHidden)}>
+		<icon on:click={() => (drawerOpen = !drawerOpen)}>
 			<MdMenu />
 		</icon>
 		<span style="margin-left:0.5rem"

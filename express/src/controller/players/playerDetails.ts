@@ -200,7 +200,7 @@ export async function playerDetails(req: Request) {
           matchHtml += `
                         <th rowspan=${matchesPlayed.length}>${cupShort(
             cup.cupName
-          )}<br><img src="/icons/cups/${cup.cupID}.png" style="
+          )}<br><img src="/icons/cups/VGL.png" style="
                 width: 4rem;
             "></th>
                         <th rowspan=${
@@ -230,11 +230,7 @@ export async function playerDetails(req: Request) {
     } else {
       matchHtml += `
                     <tr>
-                    <th>${cupShort(cup.cupName)}<br><img src="/icons/cups/${
-        cup.cupID
-      }.png" style="
-                    width: 4rem;
-                "></th>
+                    <th>${cupShort(cup.cupName)}<br><img src="/icons/cups/VGL.png" style="width: 4rem;"></th>
                     <th class=${medal}>${pos}</th>
                     <td colspan=7 style='text-align:center'>Did not play</td>
                     </tr>`;

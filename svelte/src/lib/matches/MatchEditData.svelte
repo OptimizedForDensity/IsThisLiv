@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { api } from '$lib/helper';
 	import { DateInput } from 'date-picker-svelte';
+	import { onMount } from 'svelte';
 	import { createWorker } from 'tesseract.js';
 	export let data: MatchStat;
 	export let close: Function;
@@ -58,12 +58,14 @@
 		penalties: Array<Array<{ player: Player; penalty: Penalty }>>;
 	};
 	const halves = [{ name: 'First Half' }, { name: 'Second Half' }, { name: 'Eggstra Dime' }];
+	const closeMatchEdit = () => { // Is this really necessary?
+		close();
+	}
 	const addEvent = (i: number) => {
-		data.events[i].push({
+		data.events[i] = [...data.events[i], {
 			event: {},
 			player: {}
-		});
-		data = data;
+		}];
 	};
 	const addPenalty = (i: number) => {
 		data.penalties[i].push({
@@ -82,14 +84,17 @@
 		}
 	};
 	let saving = false;
-	const saveData = async () => {
+	const saveData = async (close = false) => {
 		saving = true;
 		let formattedDate = datePicker?.['$$']?.ctx?.[0];
-		const result = await api('/sql/matchSave/', {
+		await api(fetch, '/sql/matchSave/', {
 			data: Object.assign(data, { date: formattedDate })
 		});
 		data = await getData();
 		saving = false;
+		if (close) {
+			closeMatchEdit();
+		}
 	};
 	let ratingsOnly = false;
 	let condOnly = false;
@@ -253,6 +258,7 @@
 	checkChange();
 	function checkChange() {
 		errors = [];
+		let possession = [0, 0, 0];
 		for (const i of [0, 1]) {
 			let statSaves = 0;
 			let finalPeriod = 0;
@@ -262,6 +268,8 @@
 						if (row.name == 'Saves' && parseInt(row.value) >= statSaves) {
 							statSaves = parseInt(row.value);
 							finalPeriod = j;
+						} else if (row.name == 'Posession (%)' && parseInt(row.value) && j < 2) {  // TODO: handle the extra time case
+							possession[j] += parseInt(row.value);
 						}
 					}
 				}
@@ -307,6 +315,11 @@
 				errors.push(`${sI[i]} sub on/off times has inconsistencies`);
 			if (statSaves !== perfSaves) errors.push(`${sI[i]} saves don't add up to stat card`);
 		}
+		for (const j of [0, 1, 2]) {
+			if (j < 2 && possession[j] != 100) {
+				errors.push(`Possession for period ${j} sums to ${possession[j]}, not 100`);
+			}
+		}
 		if (!(data.motm > 0)) errors.push('No MoTM');
 	}
 </script>
@@ -323,6 +336,7 @@
 <div id="matchContainer">
 	<div id="matchMeta">
 		<table style="margin-left:auto;margin-right:auto;">
+			<tbody>
 			<tr>
 				<th>ID</th><th>Stage</th><th>Date</th><th>Stadium</th><th>Attend</th><th>Winner</th><th
 					>Official</th
@@ -343,7 +357,7 @@
 					<DateInput
 						bind:this={datePicker}
 						bind:value={data.date}
-						format={'yyyy-MM-dd HH:mm:ss'}
+						format="yyyy-MM-dd HH:mm:ss"
 						placeholder=""
 						valid={true}
 					/>
@@ -358,7 +372,7 @@
 					/>
 					<datalist id="stadiumlist">
 						{#each data.stadiums as stadium}
-							<option value={stadium} />
+							<option>{stadium}</option>
 						{/each}
 					</datalist>
 				</td>
@@ -408,6 +422,7 @@
 					{/if}</td
 				>
 			</tr>
+			</tbody>
 		</table>
 	</div>
 	<div id="matchStats">
@@ -420,13 +435,14 @@
 			accept="image/*"
 			bind:this={fileInput}
 			on:change={(e) => {
-				e.target.file[0];
+				processOCR(e.target.files[0]);
 			}}
 			style="display: none;"
 		/>
 		<scorecards>
 			{#each halves as half, i}
 				<table id="matchstat1" style="text-align:center">
+					<tbody>
 					<tr><th colspan="3">{half.name}</th></tr>
 					{#each data.matchStats[i][0] as row, j}
 						<tr>
@@ -461,6 +477,7 @@
 							>
 						</tr>
 					{/each}
+					</tbody>
 				</table>
 			{/each}
 		</scorecards>
@@ -485,10 +502,11 @@
 			>
 		</h3>
 		<scorecards>
-			{#each data.performances as performances, i}
+			{#each data.performances, i}
 				<div>
 					/{data.teams[i + 1]}/
 					<table>
+						<tbody>
 						<tr>
 							<th>ID</th>
 							<th>Player</th>
@@ -499,7 +517,7 @@
 							<th>Sub Off</th>
 							<th>MotM</th>
 						</tr>
-						{#each Array(15) as _, j}
+						{#each Array(15), j}
 							<tr>
 								<td>{data.performances[i][j]?.performance.perfID || ''}</td>
 								<td
@@ -577,6 +595,7 @@
 								</td>
 							</tr>
 						{/each}
+						</tbody>
 					</table>
 				</div>
 			{/each}
@@ -589,6 +608,7 @@
 				<div>
 					/{data.teams[i + 1]}/
 					<table>
+						<tbody>
 						<tr>
 							<th>ID</th>
 							<th>Player</th>
@@ -596,7 +616,7 @@
 							<th>Reg Time</th>
 							<th>Inj Time</th>
 						</tr>
-						{#each events as { event, player }, j}
+						{#each events as { event }, j}
 							<tr>
 								<td>{event.eventID ?? ''}</td>
 								<td>
@@ -604,7 +624,7 @@
 										<option></option>
 										{#each Object.values(data.players[i]).filter((x) => data.performances[i]
 												.map((y) => y?.player?.playerID)
-												.includes(x.player.playerID)) as { player }}
+												.includes(x.player.playerID)) as { player } (player.playerID)}
 											<option value={player.playerID}>{player.name}</option>
 										{/each}
 									</select>
@@ -646,6 +666,7 @@
 								<button on:click={() => addEvent(i)}>Add Event</button>
 							</td>
 						</tr>
+						</tbody>
 					</table>
 				</div>
 			{/each}
@@ -658,12 +679,13 @@
 				<div>
 					/{data.teams[i + 1]}/
 					<table>
+						<tbody>
 						<tr>
 							<th>ID</th>
 							<th>Player</th>
 							<th>Goal</th>
 						</tr>
-						{#each penalties as { penalty, player }, j}
+						{#each penalties as { penalty }, j}
 							<tr>
 								<td>{penalty.penaltyID ?? ''}</td>
 								<td>
@@ -682,6 +704,7 @@
 								<button on:click={() => addPenalty(i)}>Add Player</button>
 							</td>
 						</tr>
+						</tbody>
 					</table>
 				</div>
 			{/each}
@@ -690,9 +713,16 @@
 	<button
 		style="padding:1rem;margin:1rem"
 		on:click={() => {
-			saveData();
+			saveData(false);
 		}}
 		disabled={saving}>{saving ? 'Saving' : 'Save'}</button
+	>
+	<button
+		style="padding:1rem;margin:1rem"
+		on:click={() => {
+			saveData(true);
+		}}
+		disabled={saving}>{saving ? 'Saving' : 'Save and Close'}</button
 	>
 </div>
 

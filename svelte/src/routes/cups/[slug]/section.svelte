@@ -1,8 +1,8 @@
 <script lang='ts'>
     // @ts-ignore
-	import MdAdd from 'svelte-icons/md/MdAdd.svelte'
+	import MdAdd from 'svelte-icons/md/MdAdd.svelte';
 	// @ts-ignore
-	import MdRemove from 'svelte-icons/md/MdRemove.svelte'
+	import MdRemove from 'svelte-icons/md/MdRemove.svelte';
     export let show:Record<string,boolean>;
     export let section:string;
 </script>
@@ -10,7 +10,7 @@
     {section}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <icon class='sectionIcon' on:click={()=>{show[section]=!show[section]}}>
+    <icon class='sectionIcon' onclick={()=>{show[section]=!show[section]}}>
         {#if show[section]}
             <MdRemove/>
         {:else}
@@ -22,7 +22,7 @@
     <slot/>
 {/if}
 <style>
-    .sectionIcon {		
+    .sectionIcon {
         height:1.5rem;
         width:1.5rem;
         padding:0;

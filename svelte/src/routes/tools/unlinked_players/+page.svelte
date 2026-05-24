@@ -1,12 +1,12 @@
 <script>
 	import { api, cupShort } from "$lib/helper";
 
-    const data = api('/players/getUnlinked');
+    const data = api(fetch, '/players/getUnlinked');
     let linked = new Set();
     function useLink(player){
         linked.add(player.playerID);
         linked = linked;
-        api('/sql/playerLink/',{player});
+        api(fetch, '/sql/playerLink/',{player});
     }
 </script>
 <div style='padding:2rem'>

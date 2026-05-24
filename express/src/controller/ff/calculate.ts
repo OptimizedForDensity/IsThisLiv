@@ -1,5 +1,14 @@
+import { and, count, desc, eq, gt, like, not, or } from "drizzle-orm";
 import { Request } from "express";
+import { db } from "../../db";
 import { getEvents, getPerformances, getPlayers } from "../../db/commonFn";
+import {
+  Fantasy,
+  FantasyPlayer,
+  Match,
+  Performance,
+  Player,
+} from "../../db/schema";
 import {
   assistTypes,
   goalTypes,
@@ -10,19 +19,10 @@ import {
   straightRedType,
   yellowCardTypes,
 } from "../../lib/helper";
-import { db } from "../../db";
-import {
-  Fantasy,
-  FantasyPlayer,
-  Match,
-  Performance,
-  Player,
-} from "../../db/schema";
-import { and, count, desc, eq, gt, like, lt, not, or } from "drizzle-orm";
 
 export default async function calculate(req: Request) {
   const cupID = req.body.cupID;
-  const rounds = ["r1", "r2", "r3", "r4", "ro16", "qf", "sf", "fn"];
+  const rounds = ["r1", "r2", "r3", "r4", "sr1", "sr2", "ro16", "qf", "sf", "fn"];
   const posTypes = {
     GK: ["GK"],
     DEF: ["LB", "CB", "RB"],
@@ -202,6 +202,8 @@ export default async function calculate(req: Request) {
         r2: null,
         r3: null,
         r4: null,
+        sr1: null,
+        sr2: null,
         ro16: null,
         qf: null,
         sf: null,
@@ -260,6 +262,10 @@ export default async function calculate(req: Request) {
               break;
             }
           }
+        } else if (match.round == "Survival Round 1") {
+          round = "sr1";
+        } else if (match.round == "Survival Round 2") {
+          round = "sr2";
         } else if (match.round == "Round of 16") {
           round = "ro16";
         } else if (match.round == "Quarter") {

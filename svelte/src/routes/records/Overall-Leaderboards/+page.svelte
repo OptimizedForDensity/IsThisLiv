@@ -3,62 +3,62 @@
 	import { api } from "$lib/helper";
 	import { sidebarStore } from "$lib/sideBarStore";
 	import Table from "./table.svelte";
-    import {onMount} from 'svelte'
-    let cup = 0
-    let cups = [];
-    onMount((async()=>{
-    cups = api('/cups/list').then((d)=>{
-        cup = d[0].cupID
-        loadCup()
-        return d
-    });
-    }))
-    let data;
-    async function loadCup(){
-        data = api('/records/leaderboards/' + cup)
+
+    export let data: {
+        cups: Array<{ cupID: number, [key: string]: any }>,
+        initialCupData: any,
+        initialCupID: number
+    };
+
+    let cup = data.initialCupID;
+    let cups = data.cups;
+    let leaderboardData = data.initialCupData;
+
+    async function loadCup() {
+        leaderboardData = await api(fetch, '/records/leaderboards/' + cup);
     }
     /*
     <Table title={'Goals Per Match (Min 10 matches)'} headers={['#','Board','Name','GPM (# Matches)']} rows={data.gpm} />
-           
+
     */
     $sidebarStore = `Leaderboards`;
 </script>
 <container>
-    {#await data then data}
-        {#if data !== undefined && data.date !== undefined}
-            <div id="pageModifiedTime">Last updated - <Datetime date={data.date} multiline={false}/></div>  
+    {#await leaderboardData then leaderboardData}
+        {#if leaderboardData !== undefined && leaderboardData.date !== undefined}
+            <div id="pageModifiedTime">Last updated - <Datetime date={leaderboardData.date} multiline={false}/></div>
         {/if}
     {/await}
-    <h2>Leaderboards {#await cups then cups}
-        <select bind:value={cup} on:change={()=>{loadCup()}}>
+    <h2>Leaderboards {#if cups}
+        <select bind:value={cup} on:change={()=>{loadCup}}>
             {#each cups as cup}
                 <option value={cup.cupID}>{cup.cupName}</option>
             {/each}
         </select>
-    {/await}</h2>
-    {#await data}
+    {/if}</h2>
+    {#await leaderboardData}
         Loading...
-     {:then data}
-        {#if data !== undefined && data.date !== undefined}
+     {:then leaderboardData}
+        {#if leaderboardData !== undefined && leaderboardData.date !== undefined}
             <data>
-                <Table title={'All Time Goalscorers'} headers={['#','Board','Name','Goals']} rows={data.mostGoals} />
-                <Table title={'Most Hat Tricks'} headers={['#','Board','Name','Hat Tricks']} rows={data.mostHattricks} />
-                <Table title={'All Time Cards'} headers={['#','Board','Name','Cards']} rows={data.mostCards} />  
-                <Table title={'All Time Assists'} headers={['#','Board','Name','Assists']} rows={data.mostAssists} />    
-                <Table title={'All Time Saves'} headers={['#','Board','Name','Saves']} rows={data.mostSaves} />    
-                <Table title={'All Time Minutes Played'} headers={['#','Board','Name','Minutes']} rows={data.mostMinutes} /> 
-                <Table title={'Most Man of the Matches'} headers={['#','Board','Name','Count']} rows={data.mostMotm} /> 
-                <Table title={'Most Matches Played'} headers={['#','Board','Name','Count']} rows={data.mostMatchesP} /> 
-                <Table title={'Most Matches Played (Team)'} headers={['#','Board','Count']} rows={data.mostMatchesT} /> 
-                <Table title={'Highest Avg Cond (Min 10 Matches)'} headers={['#','Board','Name','Cond (#)']} rows={data.highestCondP} />
-                <Table title={'Lowest Avg Cond (Min 10 Matches)'} headers={['#','Board','Name','Cond (#)']} rows={data.lowestCondP} />
-                <Table title={'Highest Avg Cond (Team)'} headers={['#','Board','Cond']} rows={data.highestCondT} />
-                <Table title={'Highest Avg Rating (Min 10 Matches)'} headers={['#','Board','Name','Rating (#)']} rows={data.highestRateP} />
-                <Table title={'Lowest Avg Rating (Min 10 Matches)'} headers={['#','Board','Name','Rating (#)']} rows={data.lowestRateP} />
-                <Table title={'Highest Avg Rating (Team)'} headers={['#','Board','Rating']} rows={data.highestRateT} />
-                <Table title={'Most Clean Sheets (Player)'} headers={['#','Board','Name','# (%)']} rows={data.mostCleanP} />
-                <Table title={'Highest Efficiency'} headers={['#','Board','Eff %','# Wins to 50%']} rows={data.highestEff} />
-             </data>     
+                <Table title={'All Time Goalscorers'} headers={['#','Board','Name','Goals']} rows={leaderboardData.mostGoals} />
+                <Table title={'Most Hat Tricks'} headers={['#','Board','Name','Hat Tricks']} rows={leaderboardData.mostHattricks} />
+                <Table title={'All Time Cards'} headers={['#','Board','Name','Cards']} rows={leaderboardData.mostCards} />
+                <Table title={'All Time Assists'} headers={['#','Board','Name','Assists']} rows={leaderboardData.mostAssists} />
+                <Table title={'All Time Saves'} headers={['#','Board','Name','Saves']} rows={leaderboardData.mostSaves} />
+                <Table title={'All Time Minutes Played'} headers={['#','Board','Name','Minutes']} rows={leaderboardData.mostMinutes} />
+                <Table title={'Most Man of the Matches'} headers={['#','Board','Name','Count']} rows={leaderboardData.mostMotm} />
+                <Table title={'Most Matches Played'} headers={['#','Board','Name','Count']} rows={leaderboardData.mostMatchesP} />
+                <Table title={'Most Matches Played (Team)'} headers={['#','Board','Count']} rows={leaderboardData.mostMatchesT} />
+                <Table title={'Highest Avg Cond (Min 10 Matches)'} headers={['#','Board','Name','Cond (#)']} rows={leaderboardData.highestCondP} />
+                <Table title={'Lowest Avg Cond (Min 10 Matches)'} headers={['#','Board','Name','Cond (#)']} rows={leaderboardData.lowestCondP} />
+                <Table title={'Highest Avg Cond (Team)'} headers={['#','Board','Cond']} rows={leaderboardData.highestCondT} />
+                <Table title={'Highest Avg Rating (Min 10 Matches)'} headers={['#','Board','Name','Rating (#)']} rows={leaderboardData.highestRateP} />
+                <Table title={'Lowest Avg Rating (Min 10 Matches)'} headers={['#','Board','Name','Rating (#)']} rows={leaderboardData.lowestRateP} />
+                <Table title={'Highest Avg Rating (Team)'} headers={['#','Board','Rating']} rows={leaderboardData.highestRateT} />
+                <Table title={'Most Clean Sheets (Player)'} headers={['#','Board','Name','# (%)']} rows={leaderboardData.mostCleanP} />
+                <Table title={'Highest Efficiency'} headers={['#','Board','Eff %','# Wins to 50%']} rows={leaderboardData.highestEff} />
+             </data>
         {/if}
     {/await}
 </container>

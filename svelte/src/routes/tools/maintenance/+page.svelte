@@ -1,12 +1,12 @@
 <script lang='ts'>
-	import {api } from "$lib/helper";
+	import { api } from "$lib/helper";
 	import MatchEdit from "$lib/matches/MatchEdit.svelte";
 	import TeamModal from "$lib/teamModal.svelte";
     type types = "cupTeam" | "match" | ""
     const data:Promise<{data:Record<
     string,
     { type: types; headers: string[]; rows: any[][] }
-  > }> = api('/sql/getMaintenance');
+  > }> = api(fetch, '/sql/getMaintenance');
 
     let matchID = 0;
     let cupID = 0;
@@ -27,10 +27,11 @@
     <TeamModal {cupID} {team} clear={()=>{cupID=0;team=''}}/>
 {/if}
 <div style='padding:2rem'>
-    {#await data then data}        
+    {#await data then data}
        {#each Object.keys(data.data) as table}
        <h3>{table}</h3>
        <table>
+	<tbody>
         <tr>{#each data.data[table].headers as header}
             <th>{header}</th>
             {/each}
@@ -44,8 +45,9 @@
                 {/each}
             </tr>
         {/each}
-       </table>
-       {/each}
+        </tbody>
+        </table>
+        {/each}
     {/await}
 </div>
 <style>

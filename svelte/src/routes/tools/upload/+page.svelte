@@ -41,10 +41,12 @@
 		<div id='results'>
 			{#each Object.entries(result) as [team,players]}
 			<table>
+				<tbody>
 				<tr><th colspan=4>/{team}/</th></tr>
 				{#each players as player}
 				<tr><td>{player.shirtNumber}</td><td>{player.name}</td><td>{player.regPos}</td><td>{player.medal}{player.captain ? ' (C)' : ''}</td></tr>
 				{/each}
+				</tbody>
 			</table>
 			{/each}
 		</div>

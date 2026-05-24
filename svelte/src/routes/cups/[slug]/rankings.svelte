@@ -1,7 +1,6 @@
 <script lang='ts'>
 	import TeamIcon from "$lib/teamIcon.svelte";
-import TeamLink from "$lib/teamLink.svelte";
-	import { A } from "flowbite-svelte";
+	import TeamLink from "$lib/teamLink.svelte";
     export let data;
     let teamObj:Record<string,
     {team:string,
@@ -45,11 +44,11 @@ import TeamLink from "$lib/teamLink.svelte";
                     teamObj[match.away].pts += 1;
                 } else if (match.winner !== ''){
                     teamObj[match.winner].pts += 3;
-                } 
+                }
                 teamObj[match.home].gGF += match.homeg;
                 teamObj[match.away].gGF += match.awayg;
                 teamObj[match.home].gGA += match.awayg;
-                teamObj[match.away].gGA += match.homeg;                
+                teamObj[match.away].gGA += match.homeg;
             }
         }
     }
@@ -68,12 +67,12 @@ import TeamLink from "$lib/teamLink.svelte";
                     gf:match.homeg,
                     ga:match.awayg,
                     endPeriod:match.endPeriod
-                }     
+                }
                 teamObj[match.away].roundDetails = {
                     gf:match.awayg,
                     ga:match.homeg,
                     endPeriod:match.endPeriod
-                }            
+                }
             }
         }
     }
@@ -88,7 +87,7 @@ import TeamLink from "$lib/teamLink.svelte";
         return 0;
     })
     for(let i = 0; i < teamArr.length;i++){
-        if(i > 0 
+        if(i > 0
         && teamArr[i].pts == teamArr[i-1].pts
         && teamArr[i].gGF == teamArr[i-1].gGF
         && teamArr[i].gGA == teamArr[i-1].gGA){
@@ -115,12 +114,12 @@ import TeamLink from "$lib/teamLink.svelte";
         return 0;
     })
     for(let i = 0; i < teamArr.length;i++){
-        if(i > 16 
+        if(i > 16
         && teamArr[i].pts == teamArr[i-1].pts
         && teamArr[i].gGF == teamArr[i-1].gGF
         && teamArr[i].gGA == teamArr[i-1].gGA){
             teamArr[i].oRanking = teamArr[i-1].oRanking
-        } else if (i > 0 && i < 16 
+        } else if (i > 0 && i < 16
         && teamArr[i].farthestRound == teamArr[i-1].farthestRound
         && teamArr[i].roundDetails.gf == teamArr[i-1].roundDetails.gf
         && teamArr[i].roundDetails.ga == teamArr[i-1].roundDetails.ga
@@ -133,6 +132,7 @@ import TeamLink from "$lib/teamLink.svelte";
 </script>
 Underlined rankings indicate teams that advanced despite ranking in the bottom half of the group stage or teams that failed to advance despite ranking in the top half of the group stage.
 <table>
+    <tbody>
     {#if data.cupID > 2}
     <tr>
         <th></th>
@@ -159,7 +159,7 @@ Underlined rankings indicate teams that advanced despite ranking in the bottom h
             <td><TeamLink team={row.team} /><TeamIcon team={row.team} /></td>
             {#if data.cupID > 2}
             <td class={row.gRanking == 1 ? 'Gold' : (row.gRanking == 2 ? 'Silver' : (row.gRanking == 3 ? 'Bronze' : ''))}
-            style:text-decoration={((row.gRanking > 16 && row.oRanking < 17) || (row.gRanking < 17 && row.oRanking > 16) ) ? 'underline' : ''} 
+            style:text-decoration={((row.gRanking > 16 && row.oRanking < 17) || (row.gRanking < 17 && row.oRanking > 16) ) ? 'underline' : ''}
             >
                 {row.gRanking}</td>
             <td>{row.gGF}</td>
@@ -175,6 +175,7 @@ Underlined rankings indicate teams that advanced despite ranking in the bottom h
             <td>{(row.gGF + row.oGF) - (row.gGA + row.oGA)}</td>
         </tr>
     {/each}
+    </tbody>
 </table>
 <style>
 </style>

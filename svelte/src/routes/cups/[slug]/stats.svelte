@@ -6,7 +6,7 @@
 </script>
 
 {#each types as type}
-    <h2 id={type.title}>{type.title}</h2>    
+    <h2 id={type.title}>{type.title}</h2>
     {#each data[type.key] as subArr}
         {#if subArr?.num}
             <h3>{subArr.num}</h3>

@@ -1,10 +1,9 @@
-import { Request } from "express";
 import dayjs from "dayjs";
-import { db } from "../../db";
-import { Cup, Match } from "../../db/schema.js";
 import { eq } from "drizzle-orm";
-import fs from "fs/promises";
+import { Request } from "express";
+import { db } from "../../db";
 import { getMatches } from "../../db/commonFn";
+import { Cup, Match } from "../../db/schema.js";
 import { deleteFile } from "../../lib/helper";
 export async function groupStage(req: Request) {
   const { cupID, groups, type } = req.body;
@@ -18,6 +17,8 @@ export async function groupStage(req: Request) {
     orders = ["ABCDEFGH", "BCDAFGHE", "CDABGHEF"];
   } else if (type == "32 Team Traditional") {
     orders = ["ABCDEFGH", "ABCDEFGH", "ABCDEFGH"];
+  } else if (type == "48 Team Day Rotated Schedule") {
+    orders = ["ABCDEFGHIJKL", "EFGHIJKLABCD", "IJKLABCDEFGH"];
   }
   for (const round in orders) {
     let order = orders[round].split("");

@@ -1,11 +1,11 @@
 <script lang='ts'>
+	import CondIcon from "$lib/condIcon.svelte";
 	import Datetime from "$lib/datetime.svelte";
 	import EventIcon from "$lib/eventIcon.svelte";
-import { api } from "$lib/helper";
+	import { api } from "$lib/helper";
 	import Modal from "$lib/modal.svelte";
+	import PenaltyIcon from '$lib/penaltyIcon.svelte';
 	import TeamIcon from "$lib/teamIcon.svelte";
-    import PenaltyIcon from '$lib/penaltyIcon.svelte'
-    import CondIcon from "$lib/condIcon.svelte";
 	import TeamLink from "$lib/teamLink.svelte";
 
     type Event = {
@@ -59,7 +59,7 @@ import { api } from "$lib/helper";
 	}
 
     export let matchID:number;
-    let req = Promise.all([api('/sql/matchDisplay/' + matchID),api('/sql/matchHistory/' + matchID)]).then((x)=>{
+    let req = Promise.all([api(fetch, '/sql/matchDisplay/' + matchID), api(fetch, '/sql/matchHistory/' + matchID)]).then((x)=>{
         console.log(x)
         return {data:x[0] as MatchStat, history:x[1]}
     })
@@ -81,15 +81,18 @@ import { api } from "$lib/helper";
 <Modal title={'Match Details'} close={()=>matchID = 0}>
     {#await req}
         Loading...
-    {:then {data,history}} 
+    {:then {data,history}}
     <div id='matchContainer'>
         <div id='matchMeta'>
             <table style="margin-left:auto;margin-right:auto;">
+                <tbody>
                 <tr>
                     <th>ID</th><th>Stage</th><th>Date</th><th>Stadium</th><th>Attend</th><th>Winner</th><th
                         >Official</th><th>Valid</th>
                     <th>Pes</th>
                 </tr>
+                </tbody>
+                <tbody>
                 <tr>
                     <td>{matchID}</td>
                     <td>{data.round}
@@ -124,20 +127,21 @@ import { api } from "$lib/helper";
                     >
                     <td>{data.version}</td>
                 </tr>
-            </table>            
+                </tbody>
+            </table>
             <h3>
-                
-                <TeamIcon team={data.teams[1]}/><TeamLink team={data.teams[1]}/> 
+                <TeamIcon team={data.teams[1]}/><TeamLink team={data.teams[1]}/>
                 {getScore(data,data.teams[1])} - {getScore(data,data.teams[2])}
                 <TeamLink team={data.teams[2]}/><TeamIcon team={data.teams[2]}/></h3>
         </div>
         <div id='matchStats'>
             {#if data.matchStats[0]?.[0]?.[0].value >= 0}
-            <h3>Scorecards<hr></h3>
+            <h3>Scorecards</h3>
             <scorecards>
                 {#each halves as half, i}
                 {#if data.matchStats[i][0][0].value >= 0}
                 <table id="matchstat1" style="text-align:center">
+                    <tbody>
                     <tr><th colspan="3">{half.name}</th></tr>
                     {#each data.matchStats[i][0] as row, j}
                         {#if j > 0}
@@ -147,22 +151,22 @@ import { api } from "$lib/helper";
                             <td>{data.matchStats[i][1][j].value}</td>
                         </tr>
                         {/if}
-                        
-                    {/each}              
+                    {/each}
+                    </tbody>
                 </table>
                 {/if}
-                    
                 {/each}
             </scorecards>
             {/if}
         </div>
-        <div id='matchPerformances'> 
-            {#if data.performances?.[0]?.[0]}  
+        <div id='matchPerformances'>
+            {#if data.performances?.[0]?.[0]}
             <h3>Performances<hr></h3>
             <scorecards>
                 {#each data.performances as performances,i}
                     <div>
                         <table>
+                            <tbody>
                             <tr>
                                 <th>Player</th>
                                 <th>Cond</th>
@@ -179,7 +183,7 @@ import { api } from "$lib/helper";
 >
     <a class='playerLink' title={data.players[i].filter(x=>x.player.playerID == data.performances[i][j].player.playerID)[0].player.name} href='/players/{data.players[i].filter(x=>x.player.playerID == data.performances[i][j].player.playerID)[0].player.linkID}-{data.players[i].filter(x=>x.player.playerID == data.performances[i][j].player.playerID)[0].player.name?.replaceAll(' ','')}'>{data.players[i].filter(x=>x.player.playerID == data.performances[i][j].player.playerID)[0].player.name}</a>
 </td>
-                                    <td><b><CondIcon cond={data.performances[i][j].performance.cond} /></td>
+                                    <td><b><CondIcon cond={data.performances[i][j].performance.cond} /></b></td>
                                     <td>
                                         {data.performances[i][j].performance.rating}
                                     </td>
@@ -194,8 +198,8 @@ import { api } from "$lib/helper";
                                     </td>
                                 </tr>
                                 {/if}
-                               
                             {/each}
+                            </tbody>
                         </table>
                     </div>
                 {/each}
@@ -208,17 +212,19 @@ import { api } from "$lib/helper";
                 {#each data.events as events,i}
                     <div style:width={'50%'}>
                         <table style:margin='auto'>
+                        <tbody>
                         {#each events as {event,player},j}
                             <tr>
                                 <td>
                                     <a href='/players/{player.linkID}-{player.name?.replaceAll(' ','')}'>{player.name}</a>
                                 </td>
                                 <td>
-                                   <EventIcon eventType={event.eventType}/> 
+                                   <EventIcon eventType={event.eventType}/>
                                 </td>
                                 <td>{event.regTime}{event.injTime >= 0 ? '+'+ event.injTime : ''}'</td>
                             </tr>
                         {/each}
+                        </tbody>
                         </table>
                     </div>
                 {/each}
@@ -231,16 +237,18 @@ import { api } from "$lib/helper";
                 {#each data.penalties as penalties,i}
                 <div style:width={'50%'}>
                     <table style:margin='auto'>
+                        <tbody>
                         {#each penalties as {penalty,player},j}
                             <tr>
-                                <td>  
+                                <td>
                                     {data.players[i].filter(x=>x.player.playerID == player.playerID)[0].player.name}
                                 </td>
                                 <td><PenaltyIcon goal={penalty.goal}></PenaltyIcon></td>
                             </tr>
                         {/each}
+                        </tbody>
                         </table>
-                    </div>    
+                    </div>
                 {/each}
             </scorecards>
             {/if}
@@ -249,6 +257,7 @@ import { api } from "$lib/helper";
             <h3>Previous History<hr></h3>
             {#if history.matches.length}
             <table>
+                <tbody>
                 <tr>
                     <th colspan=3>Official Record</th>
                 </tr>
@@ -269,6 +278,7 @@ import { api } from "$lib/helper";
                         <td><Datetime date={match.utcTime} /></td>
                     </tr>
                 {/each}
+		        </tbody>
             </table>
             {:else}
                 First time meeting
@@ -277,7 +287,7 @@ import { api } from "$lib/helper";
     </div>
     {:catch}
         Something went wrong
-    {/await} 
+    {/await}
 </Modal>
 <style>
     #matchContainer{
@@ -292,15 +302,15 @@ import { api } from "$lib/helper";
         max-width:45vw;
     }
     #matchMeta { grid-area: matchMeta; }
-    #matchPenalties { 
-        grid-area: matchPenalties; 
+    #matchPenalties {
+        grid-area: matchPenalties;
     }
     #matchStats { grid-area: matchStats; }
-    #matchPerformances { 
-        grid-area: matchPerformances; 
+    #matchPerformances {
+        grid-area: matchPerformances;
     }
-    #matchEvents { 
-        grid-area: matchEvents; 
+    #matchEvents {
+        grid-area: matchEvents;
     }
     #matchHistory{
         grid-area: matchHistory;

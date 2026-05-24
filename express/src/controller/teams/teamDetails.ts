@@ -7,14 +7,14 @@ import {
 } from "../../db/commonFn";
 import {
   assistTypes,
+  avg,
   cupShort,
   dateFormat,
   goalTypes,
   goalTypesOG,
   playerLink,
-  teamLink,
-  avg,
   sum,
+  teamLink,
 } from "../../lib/helper";
 
 export async function teamDetails(req: Request) {
@@ -274,7 +274,7 @@ export async function teamDetails(req: Request) {
           break;
         }
       }
-      row.cup = `<th style='background:var(--bg-color);color:var(--fg-color);vertical-align:top' rowspan=${cupNum}>${match.cup}<br><img src="/icons/cups/${match.cupID}.png" style="
+      row.cup = `<th style='background:var(--bg-color);color:var(--fg-color);vertical-align:top' rowspan=${cupNum}>${match.cup}<br><img src="/icons/cups/VGL.png" style="
       width: 4rem;
   "></th>`;
     }

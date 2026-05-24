@@ -4,14 +4,14 @@
 	export let toggleModal:Function;
 	export let cupID:number;
 	let data = {cupID,homeTeam:'',awayTeam:'',round:'',utcTime:'',official:true,valid:true};
-	let rounds = api('/sql/rounds');
+	let rounds = api(fetch, '/sql/rounds');
 	let adding = false;
 	let added =false;
 	let home:HTMLInputElement;
 	async function addMatch(){
 		if(!(data.homeTeam && data.awayTeam && data.round && data.utcTime)) return;
-		adding = true;		
-		await api('/sql/addMatch',data);
+		adding = true;
+		await api(fetch, '/sql/addMatch',data);
 		adding = false;
 		added = true;
 		if(home) home.focus();
@@ -29,6 +29,7 @@
 <Modal close={closeModal} title={'Match Add'}>
 	{#await rounds then rounds}
 	<table>
+		<tbody>
 		<tr><th>Home</th><th>Away</th><th>Round</th><th>Date</th><th>Official</th><th>Valid</th></tr>
 		<tr>
 			<td><input bind:this={home} bind:value={data.homeTeam}/></td>
@@ -42,8 +43,9 @@
 			<td><input type='checkbox' bind:checked={data.official}/></td>
 			<td><input type='checkbox' bind:checked={data.valid}/></td>
 		</tr>
+		</tbody>
 	</table>
-	<button disabled={adding} on:click={()=>{addMatch()}}>{adding ? 'Adding' : 'Add'}</button>	
+	<button disabled={adding} on:click={()=>{addMatch()}}>{adding ? 'Adding' : 'Add'}</button>
 	{/await}
 </Modal>
 

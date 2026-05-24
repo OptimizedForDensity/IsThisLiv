@@ -1,5 +1,6 @@
+import { InferSelectModel } from "drizzle-orm";
 import { Request } from "express";
-import { db } from "../../db";
+import { } from "../../db";
 import {
   getCup,
   getCupTeams,
@@ -8,6 +9,7 @@ import {
   getPenalties,
   getPerformances,
 } from "../../db/commonFn";
+import { Event, Player } from "../../db/schema";
 import {
   assistTypes,
   goalTypes,
@@ -17,10 +19,8 @@ import {
   teamLink,
   yellowCardTypes,
 } from "../../lib/helper";
-import { InferSelectModel } from "drizzle-orm";
-import { Event, Player } from "../../db/schema";
 type Matches = Record<
-  "groups" | "kos",
+  "groups" | "sr" | "kos",
   {
     name: string;
     matches: Array<{
@@ -81,7 +81,7 @@ export async function cupDetails(req: Request) {
     "SELECT * FROM MatchDB INNER JOIN RoundOrder ON MatchDB.sRound = RoundOrder.sRound WHERE iCupID=? ORDER BY iOrder,RoundOrder.sRound,dUTCTime",
     [cupID]
   );*/
-  let matches: Matches = { groups: [], kos: [] };
+  let matches: Matches = { groups: [], sr: [], kos: [] };
   for (const p of await getPerformances({ cupID })) {
     if (p.performance.saves > 0) {
       if (goalies[p.player.linkID] == undefined) goalies[p.player.linkID] = 0;
@@ -105,6 +105,10 @@ export async function cupDetails(req: Request) {
       case 3:
         roundType = "groups";
         break;
+      case 4:
+      case 5:
+        roundType = "sr";
+        break
       default:
         roundType = "kos";
         break;

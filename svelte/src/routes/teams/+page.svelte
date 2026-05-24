@@ -1,13 +1,11 @@
 <script lang='ts'>
-	import { api } from "$lib/helper";
 	import TeamIcon from "$lib/teamIcon.svelte";
 	import TeamLink from "$lib/teamLink.svelte";
-	let call = api('/teams/overall').then((r)=>{
-		data = r;
-	sort(0);
-	}
-);
-	let data: {headers:Array<string>,data:Array<Record<string,string|number>>} = {headers:[],data:[]};
+
+	export let data: { teamData: { headers: Array<string>, data: Array<Record<string, string | number>> } };
+
+	let teamData: { headers: Array<string>, data: Array<Record<string, string | number>> };
+
 	let sortAsc = true;
 	let sortField = -1;
 	const sort = (field: number) => {
@@ -17,7 +15,7 @@
 			sortAsc = field == 0 ? true : false;
 			sortField = field;
 		}
-		data.data.sort((a, b) => {
+		teamData.data.sort((a, b) => {
 			let res = 0;
 			let af = Object.values(a)[field];
 			let bf = Object.values(b)[field];
@@ -29,8 +27,13 @@
 			if (!sortAsc) res *= -1;
 			return res;
 		});
-		data = data;
+		teamData = teamData;
 	};
+
+	$: {
+		teamData = data.teamData;
+        sort(0);
+    }
 </script>
 
 <svelte:head>
@@ -38,15 +41,13 @@
 </svelte:head>
 <div id="container">
 	<h1>Team Stats</h1>
-	{#await call}
-		<p>Loading...</p>
-	{:then r}
+	{#if teamData}
 		<p>Click on a header to sort</p>
 		<table>
 			<thead>
 				<tr>
 					<th>#</th>
-					{#each data.headers as header,i}
+					{#each teamData.headers as header,i}
 						<th
 							on:click={() => {
 								sort(i);
@@ -56,7 +57,7 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.data as row, i}
+				{#each teamData.data as row, i}
 					<tr>
 						<td>{i + 1}</td>
 						{#each Object.values(row) as field,j}
@@ -70,7 +71,7 @@
 				{/each}
 			</tbody>
 		</table>
-	{/await}
+	{/if}
 </div>
 
 <style>

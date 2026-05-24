@@ -1,16 +1,11 @@
 <script lang="ts">
-	import Modal from '$lib/modal.svelte';
-	import { browser } from '$app/environment';
-	import { User } from '$lib/user';
 	import { api } from '$lib/helper';
-	let data = api('/ff/teamListID');
+	import Modal from '$lib/modal.svelte';
+	export let data: Promise<any>;
 	let newUser = '';
 	let newPassword = '';
 	async function resetPassword(id: string) {
-		newPassword = (await api('/ff/resetPassword', { id })).prv;
-	}
-	if (browser && $User.access < 3) {
-		window.location.replace('/');
+		newPassword = (await api(fetch, '/ff/resetPassword', { id })).prv;
 	}
 </script>
 
@@ -27,6 +22,7 @@
 	{/if}
 	{#await data then users}
 		<table>
+			<tbody>
 			{#each users as user}
 				<tr>
 					<td>{user.name}</td>
@@ -39,6 +35,7 @@
 					>
 				</tr>
 			{/each}
+			</tbody>
 		</table>
 	{/await}
 </container>

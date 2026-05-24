@@ -3,6 +3,7 @@
     export let roster;
 </script>
 <table>
+    <tbody>
     <tr>
         <th>#</th>
         <th>Pos</th>
@@ -15,8 +16,10 @@
         <td><a target="_blank" href='/players/{p.player.linkID}-{p.player.name}'>{p.player.name} {p.player.captain ? '(C)' : ''}</a></td>
     </tr>
 {/each}
+    </tbody>
 </table>
 <table>
+    <tbody>
     <tr>
         <th>#</th>
         <th>Pos</th>
@@ -29,6 +32,7 @@
         <td><a target="_blank" href='/players/{p.player.linkID}-{p.player.name}'>{p.player.name} {p.player.captain ? '(C)' : ''}</a></td>
     </tr>
 {/each}
+    </tbody>
 </table>
 <style>
      td{

@@ -1,7 +1,6 @@
+import { and, desc, eq, like } from "drizzle-orm";
 import { Request } from "express";
-import { checkPassword, createPassword, encrypt } from "../sql/user/login";
 import { db } from "../../db";
-import { and, desc, eq, inArray, like, not, SQL } from "drizzle-orm";
 import {
   Cup,
   Fantasy,
@@ -10,6 +9,7 @@ import {
   Player,
   RosterOrder,
 } from "../../db/schema";
+import { checkPassword, createPassword, encrypt } from "../sql/user/login";
 
 export async function login(req: Request) {
   let { team, prv } = req.body;
@@ -41,7 +41,7 @@ export async function login(req: Request) {
     const koMatches = await db
       .select()
       .from(Match)
-      .where(and(eq(Match.cupID, cup.cupID), eq(Match.round, "Round of 16")));
+      .where(and(eq(Match.cupID, cup.cupID), eq(Match.round, "Survival Round 1")));
     let koTeams: string[] = [];
     if (koMatches.length) {
       for (const match of koMatches) {

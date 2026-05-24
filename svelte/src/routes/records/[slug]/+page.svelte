@@ -1,5 +1,6 @@
 <script lang='ts'>
-	import { page } from '$app/stores';
+	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import Datetime from '$lib/datetime.svelte';
 	import { api } from '$lib/helper';
 	import Records from '$lib/records.svelte';
@@ -15,19 +16,22 @@
 			}
 		>>
 	}
-	let res: Promise<Res>;
-	let id = '';
-	page.subscribe((p)=>{
-		if(id!==p.url.pathname){
-			id = p.url.pathname;
-			res = api($page.url.pathname);
-			$sidebarStore = p.url.pathname.replace('/records/','').replace('Misc-','').replaceAll('%20', ' ');
+	let res: Promise<Res> | undefined = $state(undefined);
+	let id = $state('');
+	$effect(()=>{
+		const pathname = page.url.pathname;
+		if(id !== pathname){
+			id = pathname;
+			if (browser) {
+				res = api(fetch, pathname);
+			}
+			$sidebarStore = pathname.replace('/records/','').replace('Misc-','').replaceAll('%20', ' ');
 		}
 	})
 </script>
 
 <title
-	>{$page.url.pathname
+	>{page.url.pathname
 		.substring(9).replace('Misc','')
 		.split(/-|%20/gm)
 		.map((x) => x.charAt(0).toUpperCase() + x.substring(1).toLowerCase())
@@ -37,7 +41,7 @@
 	{#await res}
 		<h2>Loading...</h2>
 	{:then res}
-		{#if res.date}
+		{#if res && res.date}
 		<div id="pageModifiedTime">Last updated - <Datetime date={res.date} multiline={false}/></div>
 			{#if res.data}
 			<h2>Records</h2>
@@ -62,7 +66,7 @@
 	#pageModifiedTime {
 		float: right;
 	}
-	#recordContainer{		
+	#recordContainer{
 		display: flex;
 		flex-wrap: wrap;
 		flex-direction: row;

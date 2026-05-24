@@ -1,4 +1,45 @@
+import {
+  SQL,
+  SQLWrapper,
+  and,
+  asc,
+  avg,
+  count,
+  desc,
+  eq,
+  gt,
+  gte,
+  inArray,
+  isNotNull,
+  like,
+  lte,
+  max,
+  min,
+  not,
+  sql,
+  sum
+} from "drizzle-orm";
+import { MySqlColumn } from "drizzle-orm/mysql-core";
 import { Request } from "express";
+import fs from "fs/promises";
+import { db } from "../../db";
+import {
+  getCup,
+  getCups,
+  getEvents,
+  getMatches,
+  getPlayers,
+} from "../../db/commonFn";
+import {
+  Cup,
+  Event,
+  Match,
+  MatchStat,
+  Performance,
+  Player,
+  PlayerLink,
+  Team,
+} from "../../db/schema";
 import {
   assistTypes,
   cupLink,
@@ -12,51 +53,6 @@ import {
   teamLink,
   yellowCardTypes,
 } from "../../lib/helper";
-import fs from "fs/promises";
-import {
-  and,
-  asc,
-  avg,
-  count,
-  countDistinct,
-  desc,
-  eq,
-  gt,
-  gte,
-  inArray,
-  InferSelectModel,
-  isNotNull,
-  isNull,
-  like,
-  lte,
-  max,
-  min,
-  not,
-  or,
-  sql,
-  SQL,
-  SQLWrapper,
-  sum,
-} from "drizzle-orm";
-import {
-  Cup,
-  Event,
-  Match,
-  MatchStat,
-  Performance,
-  Player,
-  PlayerLink,
-  Team,
-} from "../../db/schema";
-import { db } from "../../db";
-import {
-  getCup,
-  getCups,
-  getEvents,
-  getMatches,
-  getPlayers,
-} from "../../db/commonFn";
-import { MySqlColumn } from "drizzle-orm/mysql-core";
 
 const recordTypes = [
   "match-team",
@@ -1375,6 +1371,7 @@ async function calcRecords({
       )
       .groupBy(customDate, Cup.cupID)
       .orderBy(dir(stat), desc(customDate))
+      .having(gte(stat, 0))
       .limit(len);
 
     result = placeMaker(result, "sum");

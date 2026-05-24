@@ -1,3 +1,4 @@
+import { desc, eq } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
 import {
@@ -7,8 +8,6 @@ import {
   Player,
   RosterOrder,
 } from "../../db/schema";
-import { desc, eq } from "drizzle-orm";
-import { playerLink } from "../../lib/helper";
 
 export default async function mainWiki(req: Request) {
   const cupID = req.body.cupID;
@@ -25,6 +24,8 @@ export default async function mainWiki(req: Request) {
       r2: number;
       r3: number;
       r4: number;
+      sr1: number;
+      sr2: number;
       ro16: number;
       qf: number;
       sf: number;
@@ -53,6 +54,8 @@ export default async function mainWiki(req: Request) {
         r2: 0,
         r3: 0,
         r4: 0,
+        sr1: 0,
+        sr2: 0,
         ro16: 0,
         qf: 0,
         sf: 0,
@@ -87,7 +90,8 @@ export default async function mainWiki(req: Request) {
       if (fantasyp.cap == 1) teamText += "{{vice-captain}} ";
       teamText += `|g1=${fantasyp.r1 ?? "-"} |g2=${fantasyp.r2 ?? "-"} |g3=${
         fantasyp.r3 ?? "-"
-      } |g4=${fantasyp.r4 ?? "-"} |rs=${fantasyp.ro16 ?? "-"} |qs=${
+      } |g4=${fantasyp.r4 ?? "-"} |sr1=${fantasyp.sr1 ?? "-"} |sr2=${
+        fantasyp.sr2 ?? "-"} |rs=${fantasyp.ro16 ?? "-"} |qs=${
         fantasyp.qf ?? "-"
       } |ss=${fantasyp.sf ?? "-"} |fs=${fantasyp.fn ?? "-"} |ts=${
         fantasyp.tot ?? "-"
@@ -117,15 +121,17 @@ export default async function mainWiki(req: Request) {
 ${teamText}
 
 ==Rankings==
-{|  border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; -khtml-border-radius: 10px; -icab-border-radius: 10px; -o-border-radius: 10px;' 
-| 
-{|  class='wikitable sortable' style='font-size: 90%; background: transparent;' 
-|- 
+{|  border-radius: 10px; -moz-border-radius: 10px; -webkit-border-radius: 10px; -khtml-border-radius: 10px; -icab-border-radius: 10px; -o-border-radius: 10px;'
+|
+{|  class='wikitable sortable' style='font-size: 90%; background: transparent;'
+|-
 !  style='background-color:#cdcdcd;' |  Team
 !  style='background-color:#cdcdcd;width:60px' |  R1
 !  style='background-color:#cdcdcd;width:60px' |  R2
 !  style='background-color:#cdcdcd;width:60px' |  R3
 !  style='background-color:#cdcdcd;width:60px' |  R4
+!  style='background-color:#cdcdcd;width:60px' |  SR1
+!  style='background-color:#cdcdcd;width:60px' |  SR2
 !  style='background-color:#cdcdcd;width:60px' |  Ro16
 !  style='background-color:#cdcdcd;width:60px' |  QF
 !  style='background-color:#cdcdcd;width:60px' |  SF
@@ -139,7 +145,7 @@ ${sortedData
         return `
 | ${x}`;
       })
-      .join("")} 
+      .join("")}
 `;
   })
   .join("")}
@@ -158,7 +164,7 @@ Teams must consist of: a team name, eleven starting players and six substitutes,
 
 The substitutes must consist of one goalkeeper, two defenders, two midfielders and one forward. <br>
 
-A team must have exactly two gold and two silver players. Additionally, the team will get a medal substitute, who can be either gold or silver without affecting these limitations - however, a medal substitute cannot fill in for a lower class, so a gold player substitute cannot fill in for a silver nor can golds or silvers fill in for non-medals. Furthermore, a team may have no more than three players overall from any one board.<br>
+A team must have exactly one gold, two silver, and two bronze players. Additionally, the team will get a medal substitute, who can be either gold, silver, or bronze without affecting these limitations - however, a medal substitute cannot fill in for a lower class, so a gold player substitute cannot fill in for a silver nor can golds or silvers fill in for non-medals. Furthermore, a team may have no more than three players overall from any one board.<br>
 
 If a player in the team's starting eleven does not play in a round, a substitute who does may take their spot. The player must be from the same category, but specific position differences are allowed (so a CB may fill in for a LB, but not for a DMF).<br>
 
@@ -170,10 +176,10 @@ Following the group stages of a cup, teams are allowed to remove eliminated play
 Points are accumulated as follows:<br>
 
 *1 point for each full point of match rating in excess of 4, this gets a multiplier for the following positions: GK/CB/FB/DMF - 3x, CMF/WMF - 2x.
-*6 points for a defender or goalkeeper scoring a goal. 
+*6 points for a defender or goalkeeper scoring a goal.
 *5 points for a midfielder scoring a goal.
 *4 points for a forward scoring a goal.
-*3 points for a goal assist. 
+*3 points for a goal assist.
 *4 points for a defender or goalkeeper if their team managed a clean sheet and they played 60 minutes or more.
 *3 points for a defender or goalkeeper if their team managed a clean sheet and they took the field yet played less than 60 minutes.
 *1 point for a midfielder if their team managed a clean sheet and they played 60 minutes or more.

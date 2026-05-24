@@ -1,18 +1,18 @@
 <script lang="ts">
-	import Modal from '$lib/modal.svelte';
 	import { browser } from '$app/environment';
-	import { User } from '$lib/user';
 	import { api } from '$lib/helper';
-	let data = api('/sql/user/get');
+	import Modal from '$lib/modal.svelte';
+	import { User } from '$lib/user';
+	let data = api(fetch, '/sql/user/get');
 	let newUser = '';
 	let newPassword = '';
 	async function resetPassword(user: string) {
-		newPassword = (await api('/sql/user/resetPassword', { user })).password;
+		newPassword = (await api(fetch, '/sql/user/resetPassword', { user })).password;
 	}
 	async function createUser() {
-		newPassword = (await api('/sql/user/create', { user: newUser })).password;
+		newPassword = (await api(fetch, '/sql/user/create', { user: newUser })).password;
 		newUser = '';
-		data = api('/sql/user/get');
+		data = api(fetch, '/sql/user/get');
 	}
 	if (browser && $User.access < 3) {
 		window.location.replace('/');
@@ -32,6 +32,7 @@
 	{/if}
 	{#await data then users}
 		<table>
+			<tbody>
 			<tr>
 				<td colspan="2"><input bind:value={newUser} /></td>
 				<td
@@ -55,6 +56,7 @@
 					>
 				</tr>
 			{/each}
+			</tbody>
 		</table>
 	{/await}
 </container>

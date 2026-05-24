@@ -1,7 +1,7 @@
-<script lang="ts">
-	import { User } from '../../lib/user';
+<script lang='ts'>
 	import { goto } from '$app/navigation';
 	import { api } from '$lib/helper';
+	import { User } from '../../lib/user';
 	let cupData = {
 		name: '',
 		season: '',
@@ -26,12 +26,13 @@
 			parseInt(cupData.version) <= 2030
 		) {
 			cupData.user = $User.user;
-			goto(`/cups/${(await api('/sql/newCup', cupData)).cupURL}`);
+			goto(`/cups/${(await api(fetch, '/sql/newCup',cupData)).cupURL}`);
 		}
 	};
 </script>
 
 <table>
+	<tbody>
 	<tr
 		><td>Name</td><td
 			><input class={cupData.name?.length > 0 ? '' : 'error'} bind:value={cupData.name} /></td
@@ -44,6 +45,7 @@
 				<option>Spring</option>
 				<option>Summer</option>
 				<option>Autumn</option>
+<<<<<<< HEAD
 			</select></td
 		></tr
 	>
@@ -96,6 +98,7 @@
 			/></td
 		></tr
 	>
+	</tbody>
 </table>
 <button on:click={submitCup}>Submit</button>
 

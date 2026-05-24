@@ -7,7 +7,7 @@
 		name: string;
 		team: string;
 		playerID: number;
-		medal: '' | 'Gold' | 'Silver';
+		medal: '' | 'Gold' | 'Silver' | 'Bronze';
 		regPos: string;
 	};
 	type Data = {
@@ -18,7 +18,7 @@
 		posOrder: Record<string, 'GK' | 'DEF' | 'MID' | 'FWD'>;
 	};
 	let data: Data;
-	let req = api('/ff/getData', { cupID: $ffStore.cupID }).then((r) => {
+	let req = api(fetch, '/ff/getData', { cupID: $ffStore.cupID }).then((r) => {
 		data = r;
 		checkErrors();
 		return r;
@@ -76,8 +76,9 @@
 			DEF: [3, 5],
 			MID: [3, 6],
 			FWD: [1, 3],
+			Bronze: [2, 2],
 			Silver: [2, 2],
-			Gold: [2, 2],
+			Gold: [1, 1],
 			LB: [0, 1],
 			RB: [0, 1],
 			LMF: [0, 1],
@@ -93,6 +94,7 @@
 			DEF: [2, 2],
 			MID: [2, 2],
 			FWD: [1, 1],
+			Bronze: [0, 1],
 			Silver: [0, 1],
 			Gold: [0, 1]
 		}
@@ -105,6 +107,7 @@
 				DEF: 0,
 				MID: 0,
 				FWD: 0,
+				Bronze: 0,
 				Silver: 0,
 				Gold: 0
 			},
@@ -113,6 +116,7 @@
 				DEF: 0,
 				MID: 0,
 				FWD: 0,
+				Bronze: 0,
 				Silver: 0,
 				Gold: 0
 			}
@@ -173,6 +177,7 @@
 				DEF: 0,
 				MID: 0,
 				FWD: 0,
+				Bronze: 0,
 				Silver: 0,
 				Gold: 0
 			},
@@ -181,6 +186,7 @@
 				DEF: 0,
 				MID: 0,
 				FWD: 0,
+				Bronze: 0,
 				Silver: 0,
 				Gold: 0
 			}
@@ -238,7 +244,7 @@
 		let sendData = JSON.parse(JSON.stringify($ffStore));
 		sendData.starting = Array.from($ffStore.starting);
 		sendData.bench = Array.from($ffStore.bench);
-		await api('/ff/saveTeam', sendData)
+		await api(fetch, '/ff/saveTeam', sendData)
 			.then((r) => {
 				if (r.error) {
 					saveErrors = 'Error: ' + r.error;
@@ -285,6 +291,7 @@
 							>
 							<hr />
 							<table>
+								<tbody>
 								<tr><th>Board</th><th>Pos</th><th>Medal</th><th>Player</th></tr>
 								{#each sortTable($ffStore[type]) as playerID}
 									<PlayerRow
@@ -295,6 +302,7 @@
 										}}
 									/>
 								{/each}
+								</tbody>
 							</table>
 						</container>
 					{/each}
@@ -393,8 +401,8 @@
 		{#if errors.length}
 			<div id="playerList">
 				<table>
-					<thead><tr><th>Board</th><th>Pos</th><th>Medal</th><th>Player</th><th>Pts</th></tr></thead
-					>
+					<thead><tr><th>Board</th><th>Pos</th><th>Medal</th><th>Player</th><th>Pts</th></tr></thead>
+					<tbody>
 					{#key [$ffStore, filters, addMode]}
 						{#each checkFiltered(data.players) as player}
 							<PlayerRow
@@ -409,6 +417,7 @@
 							/>
 						{/each}
 					{/key}
+					</tbody>
 				</table>
 			</div>
 		{:else}

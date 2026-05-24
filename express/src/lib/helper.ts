@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { db } from "../db";
-import fs from "fs/promises";
 import { InferSelectModel } from "drizzle-orm";
+import { Request, Response } from "express";
+import fs from "fs/promises";
+import { db } from "../db";
 import { Cup } from "../db/schema";
 export const pageExpiry = 8640000000; //;
 
@@ -29,7 +29,7 @@ export async function cupLink(
   cupID: number | InferSelectModel<typeof Cup>,
   params: {
     logo?: boolean;
-    format?: "long" | "med" | "short";
+    format?: "long" | "med" | "short" | "veryshort";
     text?: string;
     textPos?: "after" | "above";
   } = {
@@ -63,19 +63,25 @@ export async function cupLink(
       : "F") +
     "C";
   let cupText = cup.cupName;
-  if (format == "short") cupText = cupShort(cup.cupName);
+  if (format == "short" || format == "veryshort") cupText = cupShort(cup.cupName);
+  if (format == "veryshort") cupText = cupText.slice(3).padEnd(4);
   if (format == "med") {
-    cupText = cup.year + " " + cup.season;
+    //cupText = cup.year + " " + cup.season;
+    cupText = cup.cupName;
     if (cup.cupType == 3) cupText += " Q";
     if (cup.cupType == 4) cupText += " F";
   }
   if (params.textPos == "above") cupText += "<br>";
   cupText += text;
+  let cupLogoName = "";
+  if (cup.cupName.substring(0, 4) === "/vg/") {
+	  cupLogoName = "VGL"
+  }
   let logoHtml = `<img style='${
     format == "med"
       ? ""
       : "height:2.5rem;vertical-align:middle;margin-right:5px"
-  }' src='/icons/cups/${cupID}.png' />
+  }' src='/icons/cups/VGL.png' />
   `;
   let textHtml = `<span style='vertical-align:middle'>${cupText}</span>`;
   if (logo) {
@@ -93,14 +99,19 @@ export function cupShort(cupName: string) {
   let cupWords = cupName.split(" ");
   let shortName = "";
   for (let cupWord of cupWords) {
-    if (parseInt(cupWord) && parseInt(cupWord) > 2000) {
-      shortName += cupWord + " ";
-    } else if (cupWord != "4chan") {
-      if (cupWord == "World") {
-        shortName += "S";
-      } else {
-        shortName += cupWord[0];
-      }
+    if (cupWord == "/vg/") {
+      shortName += "VG";
+    } else if (cupWord == "League") {
+      shortName += "L";
+    } else if (cupWord[0] == "X") {
+      let splitX = cupWord.split("-");
+      shortName += splitX.join("");
+    } else if (parseInt(cupWord)) {
+      shortName += cupWord;
+    } else if (cupWord == "Qualifiers") {
+      shortName += "Q";
+    } else if (cupWord == "Friendlies") {
+      shortName += "F";
     }
   }
   return shortName;

@@ -2,9 +2,9 @@ export type MainRes = {
     teams: string[];
     cupID: number;
     cupName: string;
-    dates: string;
+    utcTime: string;
     matches: Record<
-        "groups" | "kos",
+        "groups" | "sr" | "kos",
         {
             name: string;
             matches: [

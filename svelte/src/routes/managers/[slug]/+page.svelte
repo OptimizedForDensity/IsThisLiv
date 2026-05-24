@@ -7,7 +7,7 @@
 	let filter = 'All';
 	let sort = '';
 	const loadData = async (sort) => {
-		return await api('/managers',{sort});
+		return await api(fetch, '/managers',{sort});
 	};
 	page.subscribe((r) => {
 		sort = r.params.slug;
@@ -32,11 +32,11 @@
 		processing = true;
 		if(['add','update','delete'].includes(action)){
 			editData.action = action;
-			await api('/sql/processManager/',editData);
+			await api(fetch, '/sql/processManager/',editData);
 		}
 		location.reload();
 	}
-	
+
 </script>
 
 <svelte:head>
@@ -45,10 +45,12 @@
 {#if showModal}
 <Modal title={'Manager Edit'} close={closeModal}>
 	<table>
+		<tbody>
 		<tr><th>Name</th><td><input disabled={!newRecord} bind:value={editData.manager}></td></tr>
 		<tr><th>Board</th><td><input disabled={!newRecord} bind:value={editData.board}></td></tr>
 		<tr><th>Start</th><td><input type='date' disabled={!newRecord} bind:value={editData.start}></td></tr>
 		<tr><th>End</th><td><input type='date' bind:value={editData.end}></td></tr>
+		</tbody>
 	</table>
 	{#if newRecord}
 		<button disabled={processing} on:click={()=>{process('add')}}>Add</button>

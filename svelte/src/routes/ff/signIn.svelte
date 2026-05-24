@@ -8,12 +8,12 @@
     let prv = '';
     let error = '';
     async function teamList(){
-        return await api('/ff/teamList');
+        return await api(fetch, '/ff/teamList');
     }
     let disabled = false;
     async function login(){
         disabled = true;
-        let res = await api('/ff/login',signIn);
+        let res = await api(fetch, '/ff/login',signIn);
         if(res.error){
             error = res.error;
         } else{
@@ -28,7 +28,7 @@
     }
     async function register(){
         disabled = true;
-        let res = await api('/ff/register',signIn);
+        let res = await api(fetch, '/ff/register',signIn);
         if(res.error){
             error = res.error;
         } else{
@@ -53,9 +53,9 @@
             <option value={team} />
         {/each}
     </datalist>
-    <button disabled={disabled} on:click={login}>Login</button><button disabled={disabled} on:click={register}>Register</button>    
+    <button disabled={disabled} on:click={login}>Login</button><button disabled={disabled} on:click={register}>Register</button>
     {/await}
-    
+
 </div>
 <style>
     #error{

@@ -1,7 +1,7 @@
+import { eq } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
 import { Fantasy, FantasyPlayer, Player, RosterOrder } from "../../db/schema";
-import { eq } from "drizzle-orm";
 import { playerLink } from "../../lib/helper";
 
 export async function getCup(req: Request) {
@@ -18,6 +18,8 @@ export async function getCup(req: Request) {
       r2: number;
       r3: number;
       r4: number;
+      sr1: number;
+      sr2: number;
       ro16: number;
       qf: number;
       sf: number;
@@ -42,6 +44,8 @@ export async function getCup(req: Request) {
         r2: 0,
         r3: 0,
         r4: 0,
+        sr1: 0,
+        sr2: 0,
         ro16: 0,
         qf: 0,
         sf: 0,

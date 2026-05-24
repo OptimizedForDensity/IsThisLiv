@@ -6,14 +6,15 @@
     export let data:MainRes;
     export let matchDetails:Function;
 </script>
-{#if data.matches.groups}
+{#if data.matches.groups && data.matches.groups.length > 0}
     <h2 id="Groups">Group Stage</h2>
     <div class='groupsContainer' style="padding:0 2rem">
         {#each data.matches.groups as group}
             <div class="groups">
                 <h3 id={group.name}>{group.name}</h3>
                 {#if !['Playoff Knockout'].includes(group.name)}
-                    <groupTable>
+                    <table class="groupTable">
+			        <tbody>
                         <tr>
                             <th>Team</th>
                             <th>Pld</th>
@@ -32,7 +33,8 @@
                                 {/each}
                             </tr>
                         {/each}
-                    </groupTable>
+			        </tbody>
+                    </table>
                 {/if}
                 {#each group.matches as match}
                     <match>
@@ -43,11 +45,29 @@
         {/each}
     </div>
 {/if}
-{#if data.matches.kos}
+{#if data.matches.sr && data.matches.sr.length > 0}
+    <h2 id="Survival">Survival Round</h2>
+    <!--<div id='bracketContainer'>
+    <Brackets data2={cupData} />
+    </div>-->
+    <div class='groupsContainer' style="padding:0 2rem">
+        {#each data.matches.sr as group}
+            <div class="sr">
+                <h3 id={group.name}>{group.name}</h3>
+                {#each group.matches as match}
+                    <match>
+                        <MatchDisplay {editMatch} {match} {matchDetails}/>
+                    </match>
+                {/each}
+            </div>
+        {/each}
+    </div>
+{/if}
+{#if data.matches.kos && data.matches.kos.length > 0}
     <h2 id="Knockouts">Knockout Stage</h2>
     <div id='bracketContainer'>
     <Brackets data2={data} />
-</div>
+    </div>
     <div class='groupsContainer' style="padding:0 2rem">
         {#each data.matches.kos as group}
             <div class="kos">
@@ -62,7 +82,7 @@
     </div>
 {/if}
 <style>
-    groupTable {
+    .groupTable {
         display: table;
         border-collapse: collapse;
         border-radius: 2px;
@@ -98,24 +118,27 @@
 	.groups match:not(:last-of-type) {
 		border-bottom: solid 1px grey;
 	}
+    .sr match:not(:last-of-type) {
+		border-bottom: solid 1px grey;
+	}
 	.kos match:not(:last-of-type) {
 		border-bottom: solid 1px grey;
 	}
-	groupTable tr td:nth-child(1){
+	.groupTable tr td:nth-child(1){
 		text-align: left;
 	}
-    
+
     @media only screen and (max-width: 1000px) {
         .groups{
             display:flex;
             flex-wrap: wrap;
             flex-direction: column;
         }
-        groupTable th, groupTable td{
+        .groupTable th, groupTable td{
             min-width: 0 !important;
         }
         .groupsContainer{
-            padding:0 !important;	
+            padding:0 !important;
         }
         #bracketContainer{
             overflow-x: auto;

@@ -1,7 +1,8 @@
-<script>
+<script lang='ts'>
 	import TeamIcon from "./teamIcon.svelte";
 
-    export let match;
+    //export let match;
+    const { match } = $props<{ match: any }>();
 </script>
 
 <div style:font-weight={match.home == match.winner ? 'bold' : 'normal'}><TeamIcon team={match.home}/>/{match.home}/</div>

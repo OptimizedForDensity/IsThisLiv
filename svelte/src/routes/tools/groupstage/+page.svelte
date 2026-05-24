@@ -1,12 +1,15 @@
 <script lang='ts'>
 	import { goto } from '$app/navigation';
 	import { api } from '$lib/helper';
-	let data = api('/cups/list');
+	let data = api(fetch, '/cups/list');
 	const types = {
 		'32 Team Traditional': { groups: 8, size: 4 },
 		'32 Team Rotated Schedule': { groups: 8, size: 4 },
 		//'40 Team Traditional': { groups: 8, size: 5 },
 		//'40 Team Rotated Schedule': { groups: 8, size: 5 },
+		//'48 Team Traditional': { groups: 12, size: 4 },
+		//'48 Team Rotated Schedule': { groups: 12, size: 4 }
+		'48 Team Day Rotated Schedule': { groups: 12, size: 4 }
 		//'64 Team Traditional': { groups: 16, size: 4 }
 	} as const;
 	const groups = [
@@ -36,11 +39,11 @@
 	let processing = false;
 	let error = '';
 	async function process(){
-		let res = await api('/sql/groupStage',sendData);
+		let res = await api(fetch, '/sql/groupStage',sendData);
 		error = res.error;
 		if(!res.error){
-			goto('/cups/' + sendData.cupID)	
-		} 
+			goto('/cups/' + sendData.cupID)
+		}
 	}
 </script>
 
@@ -62,7 +65,12 @@
 			{/each}
 		</select>
 		<br />
-		Do not include "/" in team names<br />
+		Do not include "/" in team names<br/><br/>
+		Traditional means in order: Groups ABCD EFGH -> ABCD EFGH -> etc.<br/>
+		[Group] Rotated Schedule means switching out which groups go first for each series of match ups (4CC in the current year): Groups ABCD EFGH -> BCDA FGHE -> etc.<br/>
+		Day Rotated Schedule means switching up which groups play in the first day of a weekend (VGL in the current year): Groups ABCD EFGH IJKL -> EFGH IJKL ABCD -> etc.<br/>
+		<br/><br/>
+		(If you have a better idea on how to describe or refer to these let me know)<br/><br/>
 		{#each groups.slice(0, types[sendData.type].groups) as group}
 			<div class="group">
 				Group {group}

@@ -1,14 +1,14 @@
-<script>
-	// @ts-ignore
+<script lang='ts'>
+	import Modal from '$lib/modal.svelte';
+	import { User } from '$lib/user';
+// @ts-ignore
 	import MdAddBox from 'svelte-icons/md/MdAddBox.svelte';
 	import CupModal from './cupModal.svelte';
-	import { User } from '$lib/user';
-	import { api } from '$lib/helper';
-	import Modal from '$lib/modal.svelte';
-	/**
-	 * @param {object} api
-	 */
-	let data = api('/cups');
+
+	export let data;
+
+	data = data.data;
+
 	let displayCupModal = false;
 	let toggleCupModal = () => {
 		displayCupModal = !displayCupModal;
@@ -25,7 +25,7 @@
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
 			<icon
-				on:click={() => {
+				onclick={() => {
 					displayCupModal = true;
 				}}
 				style="display:inline-block;vertical-align:text-bottom"><MdAddBox /></icon
@@ -37,9 +37,7 @@
 		<CupModal />
 	</Modal>
 	{/if}
-	{#await data}
-		<p>Loading...</p>
-	{:then data}
+	{#if data}
 		<div id="tableContainer">
 			<div id='headers'>
 				<div>Cup</div>
@@ -65,7 +63,7 @@
 				</div>
 			{/each}
 		</div>
-	{/await}
+	{/if}
 </div>
 
 <style>

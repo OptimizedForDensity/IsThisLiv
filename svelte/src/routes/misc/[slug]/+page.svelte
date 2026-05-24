@@ -1,12 +1,12 @@
 <script>
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { api } from '$lib/helper';
-	let data = api('/misc/' + $page.params.slug);
+	let data = api(fetch, '/misc/' + page.params.slug);
 </script>
 
 <svelte:head>
 	<title
-		>{$page.url.pathname
+		>{page.url.pathname
 			.substring(6)
 			.split('_')
 			.map((x) => x.charAt(0).toUpperCase() + x.substring(1).toLowerCase())

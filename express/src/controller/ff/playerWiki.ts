@@ -1,16 +1,12 @@
+import { and, eq, like, or } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
+import { getPerformances } from "../../db/commonFn";
 import {
   Cup,
-  Fantasy,
   FantasyPlayer,
-  Match,
-  Player,
-  RosterOrder,
+  Match
 } from "../../db/schema";
-import { and, desc, eq, like, or } from "drizzle-orm";
-import { playerLink } from "../../lib/helper";
-import { getPerformances } from "../../db/commonFn";
 
 export default async function playerWiki(req: Request) {
   const cupID = req.body.cupID;
@@ -28,6 +24,8 @@ export default async function playerWiki(req: Request) {
       R2?: number | "";
       R3?: number | "";
       R4?: number | "";
+      SR1?: number | "";
+      SR2?: number | "";
       Ro16?: number | "";
       QF?: number | "";
       SF?: number | "";
@@ -49,6 +47,8 @@ export default async function playerWiki(req: Request) {
         R2: "",
         R3: "",
         R4: "",
+        SR1: "",
+        SR2: "",
         Ro16: "",
         QF: "",
         SF: "",
@@ -65,6 +65,10 @@ export default async function playerWiki(req: Request) {
     if (typeof rating == "number") {
       if (p.match.round == "Quarter") {
         rowsObj[pID].QF = rating;
+      } else if (p.match.round == "Survival Round 1") {
+        rowsObj[pID].SR1 = rating;
+      } else if (p.match.round == "Survival Round 2") {
+        rowsObj[pID].SR2 = rating;
       } else if (p.match.round == "Round of 16") {
         rowsObj[pID].Ro16 = rating;
       } else if (p.match.round == "Semifinal") {
@@ -121,6 +125,8 @@ export default async function playerWiki(req: Request) {
 !  style='background-color:#cdcdcd;width:60px' |  R2
 !  style='background-color:#cdcdcd;width:60px' |  R3
 !  style='background-color:#cdcdcd;width:60px' |  R4
+!  style='background-color:#cdcdcd;width:60px' |  SR1
+!  style='background-color:#cdcdcd;width:60px' |  SR2
 !  style='background-color:#cdcdcd;width:60px' |  Ro16
 !  style='background-color:#cdcdcd;width:60px' |  QF
 !  style='background-color:#cdcdcd;width:60px' |  SF
@@ -137,13 +143,15 @@ export default async function playerWiki(req: Request) {
             ? `style='background:#B7BEC5'`
             : ""
         }
-| {{team away|${x.team}}} 
+| {{team away|${x.team}}}
 | {{Position|${x.pos.toUpperCase()}}}
-| ${x.player} 
+| ${x.player}
 | ${x.R1}
 | ${x.R2}
 | ${x.R3}
 | ${x.R4}
+| ${x.SR1}
+| ${x.SR2}
 | ${x.Ro16}
 | ${x.QF}
 | ${x.SF}

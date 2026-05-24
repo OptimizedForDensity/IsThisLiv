@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import { api } from "$lib/helper";    
+	import { api } from "$lib/helper";
     const commands:Record<string,{link:string,inProgress:boolean}> = {
         'Rebuild Current Cup':{link:'/sql/rebuildCurrentCup',inProgress:false},
         'Clear Cache':{link:'/sql/clearCache',inProgress:false},
@@ -8,7 +8,7 @@
     };
     async function runCommand(key:string){
         commands[key].inProgress = true;
-        await api(commands[key].link)
+        await api(fetch, commands[key].link)
         commands[key].inProgress = false;
     }
 </script>

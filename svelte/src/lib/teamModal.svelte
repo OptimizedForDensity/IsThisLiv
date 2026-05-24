@@ -1,7 +1,6 @@
 <script lang='ts'>
 	import { api } from "$lib/helper";
 	import Modal from "$lib/modal.svelte";
-	import Pos from "$lib/pos.svelte";
 	import TeamRoster from "$lib/teamRoster.svelte";
 	import { User } from "$lib/user";
     export let cupID:number;
@@ -10,7 +9,7 @@
     let captain = -1;
     let updating = false;
     let data = (async () => {
-		let returnObject = await api('/sql/cupTeamDisplay',{team,cupID});
+		let returnObject = await api(fetch, '/sql/cupTeamDisplay',{team,cupID});
         for(const p in returnObject.players){
             if(returnObject.players[p].player.captain)
                 captain = parseInt(p);
@@ -30,7 +29,7 @@
             }
             players[p] = players[p].player
         }
-        await api('/sql/updateCupTeam',{players})
+        await api(fetch, '/sql/updateCupTeam',{players})
         location.reload();
     }
 </script>
@@ -40,6 +39,7 @@
     {:then data}
         {#if $User.access > 0}
         <table>
+	    <tbody>
             <tr>
                 <th>ID</th>
                 <th>Starting</th>
@@ -72,11 +72,12 @@
                 </select></td>
             </tr>
         {/each}
+	</tbody>
         </table>
         <button disabled={updating} on:click={()=>{update()}}>Update</button>
         {:else}
         <TeamRoster roster={data.players} />
-        {/if} 
+        {/if}
     {/await}
 </Modal>
 <style>

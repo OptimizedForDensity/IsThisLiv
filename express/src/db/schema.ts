@@ -1,4 +1,4 @@
-import { mysqlTable } from "drizzle-orm/mysql-core/table";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   date,
@@ -8,7 +8,7 @@ import {
   tinyint,
   varchar,
 } from "drizzle-orm/mysql-core";
-import { relations } from "drizzle-orm";
+import { mysqlTable } from "drizzle-orm/mysql-core/table";
 
 const teamCol = (name = "team") => varchar(name, { length: 25 });
 const user = varchar("user", { length: 50 });
@@ -164,6 +164,8 @@ export const FantasyPlayer = mysqlTable("fantasyp", {
   r2: int("r2"),
   r3: int("r3"),
   r4: int("r4"),
+  sr1: int("sr1"),
+  sr2: int("sr2"),
   ro16: int("ro16"),
   qf: int("qf"),
   sf: int("sf"),

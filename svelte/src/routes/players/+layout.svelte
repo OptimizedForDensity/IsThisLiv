@@ -12,10 +12,10 @@
 			data = [];
 		}
 	});
-	async function searchPlayer() {		
+	async function searchPlayer() {
 		if (!searching) {
 			searching = true;
-			data = await api('/players/search',{search});
+			data = await api(fetch, '/players/search',{search});
 			searching = false;
 			if (lastSearch != '-1') {
 				lastSearch = '-1';

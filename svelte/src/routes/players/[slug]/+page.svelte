@@ -1,31 +1,30 @@
 <script lang='ts'>
 	import { page } from '$app/stores';
-	import { api} from '$lib/helper';
-	import Modal from '$lib/modal.svelte';
+	import { api } from '$lib/helper';
 	import TeamIcon from '$lib/teamIcon.svelte';
 	import TeamLink from '$lib/teamLink.svelte';
 	import { User } from '$lib/user';
-	//@ts-ignore
+//@ts-ignore
 	import MdEdit from 'svelte-icons/md/MdEdit.svelte';
 	//@ts-ignore
-	import MdCancel from 'svelte-icons/md/MdCancel.svelte'
-	//@ts-ignore
-	import MdSave from 'svelte-icons/md/MdSave.svelte'
 	import Datetime from '$lib/datetime.svelte';
-	//let data;	
+	import MdCancel from 'svelte-icons/md/MdCancel.svelte';
+//@ts-ignore
+	import MdSave from 'svelte-icons/md/MdSave.svelte';
+	//let data;
 	let data:any = {};
 	let id = '';
 	page.subscribe((p)=>{
 		if(id!==p.url.pathname){
 			id = p.url.pathname;
-			data = api($page.url.pathname?.split('-')?.[0]);
+			data = api(fetch, $page.url.pathname?.split('-')?.[0]);
 		}
 	});
 	let name = '';
 	let editing = false;
 	let input:HTMLInputElement;
 	async function save(){
-		await api('/sql/updateLinkName',{linkID:(await data).linkID,name})
+		await api(fetch, '/sql/updateLinkName',{linkID:(await data).linkID,name})
 		location.reload();
 	}
 </script>
@@ -41,10 +40,10 @@
 	{#await data}
 		<h2>Loading...</h2>
 	{:then data}
-		{#if data.date}			
+		{#if data.date}
 			<div id="pageModifiedTime">Last updated - <Datetime date={data.date} multiline={false}/></div>
 			<h2>
-				<TeamIcon team={data.playerTeam}/><TeamLink team={data.playerTeam}/> - 
+				<TeamIcon team={data.playerTeam}/><TeamLink team={data.playerTeam}/> -
 				{#if editing}
 					<input bind:this={input} bind:value={name}>
 					<!-- svelte-ignore a11y-click-events-have-key-events -->

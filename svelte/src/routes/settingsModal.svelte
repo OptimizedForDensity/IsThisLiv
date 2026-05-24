@@ -1,14 +1,14 @@
 <script>
-	import { User,LocalTime } from '../lib/user';
-	import Modal from '../lib/modal.svelte';
 	import { browser } from '$app/environment';
 	import { api } from '$lib/helper';
-	
+	import Modal from '../lib/modal.svelte';
+	import { LocalTime, User } from '../lib/user';
+
 	let inputUser = '';
 	let inputPass = '';
 	let error = '';
 	const login = async () => {
-		let result = await api('/sql/user/login',{user:inputUser,pass:inputPass});
+		let result = await api(fetch, '/sql/user/login',{user:inputUser,pass:inputPass});
 		if(result.error){
 			error = result.error;
 		} else if (result.user) {

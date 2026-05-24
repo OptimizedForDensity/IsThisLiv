@@ -1,24 +1,24 @@
 <script lang='ts'>
-	import {api } from "$lib/helper";
+	import { api } from "$lib/helper";
     let selected = 'Unlinked';
     let stadium = '';
-    let data:Promise<{stadiums:Array<string>,stadiumLinks:Array<{stadium:string,alias:string}>}> = api('/sql/getStadiums');
+    let data:Promise<{stadiums:Array<string>,stadiumLinks:Array<{stadium:string,alias:string}>}> = api(fetch, '/sql/getStadiums');
     async function linkStadium(stadium:string,alias:string){
-        await api('/sql/linkStadium',{stadium,alias});
-        data = api('/sql/getStadiums');
+        await api(fetch, '/sql/linkStadium',{stadium,alias});
+        data = api(fetch, '/sql/getStadiums');
     }
     async function unlinkStadium(stadium:string,alias:string){
-        await api('/sql/unlinkStadium',{stadium,alias});
-        data = api('/sql/getStadiums');
+        await api(fetch, '/sql/unlinkStadium',{stadium,alias});
+        data = api(fetch, '/sql/getStadiums');
     }
 </script>
 <div style='padding:2rem'>
-    {#await data then {stadiums,stadiumLinks}} 
+    {#await data then {stadiums,stadiumLinks}}
         <datalist id='data'>
             {#each Array.from(new Set(stadiumLinks.map(x=>x.stadium))) as stadium}
                 <option value={stadium} />
             {/each}
-        </datalist>       
+        </datalist>
         <div class='cat' style:border-right='solid 1px var(--fg-color)'>
             <div class='stadium {selected == 'Unlinked' ? 'sel' : ''}' on:click={()=>selected='Unlinked'}>Unlinked</div>
             {#each Array.from(new Set(stadiumLinks.map(x=>x.stadium))) as s}

@@ -1,26 +1,24 @@
 <script lang='ts'>
 	import { page } from '$app/stores';
-	import { User } from '$lib/user';
-	// @ts-ignore
-	import MdAddBox from 'svelte-icons/md/MdAddBox.svelte';
-	import { cupShort, cupToBooru, getBooru} from '$lib/helper';	
-	import MatchEdit from '../../../lib/matches/MatchEdit.svelte';
-	import MatchAdd from './MatchAdd.svelte';
-	import TeamModal from '../../../lib/teamModal.svelte';
-	import { api } from '$lib/helper';
-	import TeamIcon from '$lib/teamIcon.svelte';
-	import Gallery from '$lib/gallery.svelte'
-	import Records from '$lib/records.svelte';
-	import type { MainRes } from './types';
-	import Sidebar from './sidebar.svelte';
-	import Matches from './matches.svelte';
-	import Section from './section.svelte';
-	import Stats from './stats.svelte';
-	import TeamLink from '$lib/teamLink.svelte';
-	import Fantasy from './fantasy.svelte';
 	import Datetime from '$lib/datetime.svelte';
+	import Gallery from '$lib/gallery.svelte';
 	import MatchDetails from '$lib/matches/matchDetails.svelte';
+	import Records from '$lib/records.svelte';
+	import TeamIcon from '$lib/teamIcon.svelte';
+	import TeamLink from '$lib/teamLink.svelte';
+	import { User } from '$lib/user';
+// @ts-ignore
+	import { api } from '$lib/helper';
+	import MdAddBox from 'svelte-icons/md/MdAddBox.svelte';
+	import MatchEdit from '../../../lib/matches/MatchEdit.svelte';
+	import TeamModal from '../../../lib/teamModal.svelte';
+	import Fantasy from './fantasy.svelte';
+	import Matches from './matches.svelte';
 	import Rankings from './rankings.svelte';
+	import Section from './section.svelte';
+	import Sidebar from './sidebar.svelte';
+	import Stats from './stats.svelte';
+	import type { MainRes } from './types';
 	let matchID = 0;
 	let viewType:'' | 'edit' | 'details' = ''
 	let data:Promise<MainRes>;
@@ -39,18 +37,18 @@
 		displayAddMatchModal = !displayAddMatchModal;
 	};
 	let displayTeam = '';
-	
+
 	let recordData:Promise<any>;
-	async function getData(slug:string){		
-		data = api('/cups/' + slug?.split('-')?.[0]).then((data)=>{
+	async function getData(slug:string){
+		data = api(fetch, '/cups/' + slug?.split('-')?.[0]).then((data)=>{
 			if(data.cupName){
-				imgs = getBooru(cupToBooru(data.cupName))
-				recordData = api('/records/cups/' + data.cupID);
+				imgs = '';//getBooru(cupToBooru(data.cupName))
+				recordData = api(fetch, '/records/cups/' + data.cupID);
 			}
 			return data;
 		});
-			
-	}	
+
+	}
 	page.subscribe(async(p)=>{
 		if(p.params.slug){
 			if(!p.url.pathname.includes('cup')) return;
@@ -64,7 +62,7 @@
 				getData(p.params.slug);
 			}
 		}
-	})	
+	})
 	let show = {
 		'Records':false,
 		'Gallery':false,
@@ -78,7 +76,7 @@
 	{#await data}
 		<title>Loading...</title>
 	{:then data}
-		{#if data?.cupName}
+		{#if data.cupName}
 		<title>{data.cupName} - IsThisLiv</title>
 		{/if}
 	{/await}
@@ -87,7 +85,7 @@
 {#if matchID > 0 && viewType == 'edit'}
 	<MatchEdit bind:matchID />
 {:else if matchID > 0 && viewType == 'details'}
-	<MatchDetails bind:matchID />
+	<MatchDetails bind:matchID></MatchDetails>
 {/if}
 
 {#await data}
@@ -115,13 +113,13 @@
 	</vertNav>
 	<contents>
 		<div id="pageModifiedTime">Last updated - <Datetime date={data.date} multiline={false}/></div>
-		<h1 id="Top">				
+		<h1 id="Top">
 			{data.cupName}{#if $User.user}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<icon
 					title={'Add match(es)'}
-					on:click={() => {
+					onclick={() => {
 						displayAddMatchModal = true;
 					}}
 					style="display:inline-block;vertical-align:text-bottom"><MdAddBox /></icon
@@ -135,7 +133,7 @@
 			{#each data.teams as teamData}
 				<!-- svelte-ignore a11y-click-events-have-key-events -->
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
-				<teamBox on:click={()=>displayTeam=teamData} class="c-2"><TeamIcon team={teamData}/><TeamLink team={teamData}/></teamBox>
+				<teamBox onclick={()=>displayTeam=teamData} class="c-2"><TeamIcon team={teamData}/><TeamLink team={teamData}/></teamBox>
 			{/each}
 		</teamsContainer>
 		<Matches {data} {editMatch} {matchDetails}/>
@@ -143,7 +141,7 @@
 			<div class='groupsContainer' style="padding:0 2rem">
 				<Stats {data} />
 			</div>
-		</Section>			
+		</Section>
 		<Section {show} section='Records'>
 			<div id='recordsContainer'  class='groupsContainer'  style="padding:0 2rem">
 				{#await recordData}
@@ -166,7 +164,7 @@
 		{/if}
 	</contents>
 	{:else}
-		<vertNav class="c-1" />
+		<vertNav class="c-1"></vertNav>
 		<contents>
 			<h1>Cup not found</h1>
 		</contents>
@@ -199,23 +197,23 @@
 		grid-template-columns: repeat(8, 1fr);
 		width: calc(100% - 3rem);
 	}
-	
+
 	teamBox {
 		display: inline-block;
 		padding: 0.5rem 0;
 		margin: 0.25rem;
-		border-radius: 0.25rem;		
+		border-radius: 0.25rem;
 		white-space: nowrap;
 	}
 	teamBox:hover{
 		cursor: pointer;
 		background:var(--bg-color)
 	}
-	
+
 	:global(h2) {
 		border-bottom: solid 1px grey;
 	}
-	
+
 	@media only screen and (max-width: 1000px) {
 		vertNav{
 			display:none;
@@ -238,7 +236,7 @@
 		:global(teamscontainer teambox){
 			padding:2px 0.5rem 2px 0!important;
 		}
-		
+
 	}
 	#recordsContainer{
 		display:flex;

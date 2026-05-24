@@ -1,7 +1,7 @@
+import { and, eq, gt, lte, or } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../../db";
 import { Cup, Match, Team } from "../../../db/schema";
-import { and, eq, gt, lte, or } from "drizzle-orm";
 import { cupShort, teamLink } from "../../../lib/helper";
 
 export async function roundTour(req: Request) {

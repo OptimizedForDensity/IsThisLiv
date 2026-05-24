@@ -1,6 +1,6 @@
+import { and, desc, eq, like } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
-import { and, desc, eq, like } from "drizzle-orm";
 import { Fantasy, FantasyPlayer, Match } from "../../db/schema";
 
 export async function saveTeam(req: Request) {
@@ -57,6 +57,8 @@ export async function saveTeam(req: Request) {
           r2: 0,
           r3: 0,
           r4: 0,
+          sr1: 0,
+          sr2: 0,
           ro16: 0,
           qf: 0,
           sf: 0,

@@ -1,5 +1,5 @@
+import { InferSelectModel, and, eq, not } from "drizzle-orm";
 import { Request } from "express";
-import { MatchData } from "./matchDisplay";
 import { db } from "../../db";
 import {
   Event,
@@ -9,8 +9,8 @@ import {
   Performance,
   Player,
 } from "../../db/schema";
-import { and, eq, InferSelectModel, not } from "drizzle-orm";
 import { deleteFile } from "../../lib/helper";
+import { MatchData } from "./matchDisplay";
 
 export async function matchSave(req: Request) {
   const { data } = req.body as { data: MatchData };
@@ -38,7 +38,7 @@ export async function matchSave(req: Request) {
         subOff: p.performance.subOff ?? -1,
         rating: p.performance.rating ?? -1,
         saves: p.performance.saves ?? -1,
-        motm: p.player.playerID == data.motm,
+        motm: p.player.playerID === data.motm,
         cond: p.performance.cond ?? -1,
         user: "",
       };
@@ -87,6 +87,7 @@ export async function matchSave(req: Request) {
       }
     }
   }
+  let wentToPenalties = false;
   for (const penaltys of data.penalties) {
     for (const e of penaltys as {
       player: InferSelectModel<typeof Player>;
@@ -106,11 +107,13 @@ export async function matchSave(req: Request) {
           .delete(Penalty)
           .where(eq(Penalty.penaltyID, e.penalty.penaltyID));
       } else if (e?.penalty?.penaltyID && e.player.playerID) {
+        wentToPenalties = true;
         await db
           .update(Penalty)
           .set(penaltyData)
           .where(eq(Penalty.penaltyID, e.penalty.penaltyID));
       } else if (!e?.penalty?.penaltyID && e.player.playerID) {
+        wentToPenalties = true;
         await db.insert(Penalty).values(penaltyData);
       }
     }

@@ -8,20 +8,25 @@
     function changeCup(id=0){
 		goto(select.value + '-' + select.options[select.selectedIndex].text.replace(" ","-"))
 	}
-    let cupsData = api('/cups/list');    
+    let cupsData = api(fetch, '/cups/list');
 </script>
-<img src='/icons/cups/{data.cupID}.png' alt='logo' style='border-radius:1rem;background:var(--bg-color);padding:5px' /><br/>
-    {#await cupsData}
-    <select></select>
-    {:then cups}
-    <div>
-    <select class='element' style='margin-bottom:0.7rem' bind:this={select} value={data.cupID} on:change={()=>{changeCup()}}>
-        {#each cups as row}
-            <option value={row.cupID}>{cupShort(row.cupName)}</option>
-        {/each}
-    </select>
-    </div>
-    {/await}
+{#if data.cupName.substring(0, 4) === "/vg/"}
+    <img src='/icons/cups/VGL.png' alt='logo' style='border-radius:1rem;background:var(--bg-color);padding:5px' /><br/>
+{/if}
+{#if data.cupName.substring(0, 4) !== "/vg/"}
+    <img src='/icons/cups/{data.cupID}.png' alt='logo' style='border-radius:1rem;background:var(--bg-color);padding:5px' /><br/>
+{/if}
+{#await cupsData}
+<select></select>
+{:then cups}
+<div>
+<select class='element' style='margin-bottom:0.7rem' bind:this={select} value={data.cupID} onchange={()=>{changeCup()}}>
+    {#each cups as row}
+        <option value={row.cupID}>{cupShort(row.cupName)}</option>
+    {/each}
+</select>
+</div>
+{/await}
 <a href="#Top">Top</a>
 <a href="#Teams">Competitors</a>
 {#if data.matches.groups}
@@ -30,7 +35,13 @@
         <a style="padding-left:1rem" href="#{group.name}">{group.name}</a>
     {/each}
 {/if}
-{#if data.matches.kos}
+{#if data.matches.sr && data.matches.sr.length > 0}
+    <a href="#Survival">Survival Round</a>
+    {#each data.matches.sr as group}
+        <a style="padding-left:1rem" href="#{group.name}">{group.name}</a>
+    {/each}
+{/if}
+{#if data.matches.kos && data.matches.kos.length > 0}
     <a href="#Knockouts">Knockout Stage</a>
     {#each data.matches.kos as group}
         <a style="padding-left:1rem" href="#{group.name}">{group.name}</a>

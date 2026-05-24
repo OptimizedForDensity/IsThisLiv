@@ -1,9 +1,5 @@
-import { Request } from "express";
-import { db } from "../../db";
-import { Cup, Event, Match, Performance, Player, Team } from "../../db/schema";
 import {
   and,
-  Column,
   desc,
   eq,
   gte,
@@ -12,10 +8,13 @@ import {
   lt,
   lte,
   not,
-  sum,
+  sum
 } from "drizzle-orm";
-import { assistTypes, cupLink, goalTypes } from "../../lib/helper";
 import { int, mysqlTable } from "drizzle-orm/mysql-core";
+import { Request } from "express";
+import { db } from "../../db";
+import { Cup, Event, Match, Performance, Player } from "../../db/schema";
+import { assistTypes, goalTypes } from "../../lib/helper";
 
 export async function getMaintenance(req: Request) {
   let data: Record<

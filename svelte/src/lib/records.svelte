@@ -14,6 +14,7 @@
         <div class='recordContainer'>
             <h4>{name}</h4>
             <table>
+                <tbody>
                 <tr>
                     {#if table.numbered}
                     <th></th>
@@ -32,6 +33,7 @@
                     {/each}
                 </tr>
                 {/each}
+                </tbody>
             </table>
         </div>
     {/each}

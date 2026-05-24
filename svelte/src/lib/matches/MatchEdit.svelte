@@ -1,13 +1,14 @@
 <script lang='ts'>
 	import { api } from '$lib/helper';
-	export let matchID:number;
 	import Modal from '$lib/modal.svelte';
 	import MatchEditData from './MatchEditData.svelte';
+
+	export let matchID: number;
 	function close() {
 		location.reload()
 	}
 	async function getData(){
-		let returnObject = await api('/sql/matchDisplay/' + matchID);
+		let returnObject = await api(fetch, '/sql/matchDisplay/' + matchID);
 		returnObject.matchID = matchID;
 		let tzOffset = new Date().getTimezoneOffset() * 60000;
 		returnObject.date = new Date(new Date(returnObject.date).getTime() + tzOffset);
@@ -23,14 +24,14 @@
 	}
 	let data = getData();
 </script>
-<Modal close={close} title={'Match Edit'}>
+<Modal close={close} title='Match Edit'>
 	{#await data}
 		Loading...
-	{:then data}		
+	{:then data}
 		<MatchEditData {data} {close} {getData}/>
 	{/await}
 </Modal>
 
 <style>
-	
+
 </style>
