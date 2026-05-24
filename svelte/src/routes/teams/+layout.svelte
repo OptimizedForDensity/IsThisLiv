@@ -1,5 +1,4 @@
 <script>
-	import { page } from '$app/stores';
 	import { DeepSet } from '$lib/deepSet';
 	import SideBar from '$lib/sideBar.svelte';
 	import { sidebarStore } from '$lib/sideBarStore';
@@ -8,6 +7,7 @@
 		'1999',
 		'2hug',
 		'3dsg',
+		'4ccg',
 		'5N@F',
 		'aa2g',
 		'aceg',
@@ -105,6 +105,7 @@
 		'smtg',
 		'snowg',
 		'sog',
+		'sora',
 		'srg',
 		'ssbg',
 		'sthg',
@@ -115,6 +116,7 @@
 		'tfg',
 		'tnm',
 		'trg',
+		'trick',
 		'ttgg',
 		'twg',
 		'uma',
