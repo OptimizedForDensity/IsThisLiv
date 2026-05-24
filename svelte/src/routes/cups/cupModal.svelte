@@ -45,7 +45,6 @@
 				<option>Spring</option>
 				<option>Summer</option>
 				<option>Autumn</option>
-<<<<<<< HEAD
 			</select></td
 		></tr
 	>
