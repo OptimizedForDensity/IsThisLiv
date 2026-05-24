@@ -29,7 +29,7 @@
 		['/files','Files'],
 		//['/booru/','Booru'],
 		['https://implyingrigged.info/', 'Wiki'],
-		['https://cytu.be/r/the4chancup', 'Stream'],
+		['https://cytube.implying.fun/c/vgleague', 'Stream'],
 		['https://implying.fun', 'VODs']
 	];
 	let links = new  DeepSet(linksArray);
