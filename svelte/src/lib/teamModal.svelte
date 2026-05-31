@@ -53,18 +53,18 @@
         {#each data.players as p,i}
             <tr>
                 <td><small>{p.player.playerID}</small></td>
-                <td><input type='checkbox' bind:checked={p.player.starting} ></td>
-                <td><input bind:value={p.player.name}></td>
-                <td><select bind:value={p.player.medal}>
+                <td><input type='checkbox' bind:checked={data.players[i].player.starting} ></td>
+                <td><input bind:value={data.players[i].player.name}></td>
+                <td><select bind:value={data.players[i].player.medal}>
                     <option></option>
                     <option>Gold</option>
                     <option>Silver</option>
                     <option>Bronze</option>
                 </select></td>
-                <td><input type='radio' value={parseInt(i)} bind:group={captain}></td>
-                <td><input style:width={'2.5rem'} bind:value={p.player.regPos}></td>
-                <td><input style:width={'2.5rem'} bind:value={p.player.shirtNumber}></td>
-                <td><select bind:value={p.player.linkID}>
+                <td><input type='radio' value={i} bind:group={captain}></td>
+                <td><input style:width={'2.5rem'} bind:value={data.players[i].player.regPos}></td>
+                <td><input style:width={'2.5rem'} bind:value={data.players[i].player.shirtNumber}></td>
+                <td><select bind:value={data.players[i].player.linkID}>
                     <option></option>
                     {#each data.links as link}
                     <option value={link.linkID}>{link.name}</option>

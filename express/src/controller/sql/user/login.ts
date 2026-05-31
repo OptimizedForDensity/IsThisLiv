@@ -1,10 +1,10 @@
-import { Request } from "express";
 import crypto from "crypto-js";
+import { eq } from "drizzle-orm";
+import { Request } from "express";
+import jwt from "jsonwebtoken";
 import CONFIG from "../../../../config.json";
 import { db } from "../../../db";
 import { User } from "../../../db/schema";
-import { eq } from "drizzle-orm";
-import jwt from "jsonwebtoken";
 const accessExpiry = 20 * 60;
 const refreshExpiry = 86400 * 120; //1hour
 
