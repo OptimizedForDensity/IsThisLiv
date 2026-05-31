@@ -13,6 +13,7 @@
 	import MatchEdit from '../../../lib/matches/MatchEdit.svelte';
 	import TeamModal from '../../../lib/teamModal.svelte';
 	import Fantasy from './fantasy.svelte';
+	import MatchAdd from './MatchAdd.svelte';
 	import Matches from './matches.svelte';
 	import Rankings from './rankings.svelte';
 	import Section from './section.svelte';

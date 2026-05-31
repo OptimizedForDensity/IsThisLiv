@@ -21,6 +21,7 @@ export async function matchSave(req: Request) {
   const dA = (data.date as unknown as string)
     .replace(/-/gm, " ")
     .replace(/:/gm, " ")
+    .replace(/T/gm, " ")
     .split(" ");
 
   for (const performances of data.performances) {
@@ -200,7 +201,7 @@ export async function matchSave(req: Request) {
     .set({
       winningTeam: data.winner,
       round: data.round,
-      attendance: typeof data.attendence == 'number' ? data.attendence : 0,
+      attendance: Number(data.attendence) || 0,
       official: data.off,
       valid: data.valid,
       stadium: data.stadium,
@@ -213,7 +214,7 @@ export async function matchSave(req: Request) {
           parseInt(dA[4])
         )
       ),
-      endPeriod: finalPeriod - 1,
+      endPeriod: finalPeriod - (wentToPenalties ? 0 : 1),
     })
     .where(eq(Match.matchID, data.matchID));
   await deleteFile(data.cupID, "cups");

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { User } from '$lib/user';
 	import { DeepSet } from '$lib/deepSet';
 	import SideBar from '$lib/sideBar.svelte';
+	import { User } from '$lib/user';
 
 	let links = new DeepSet([
 		['cache', 'Cache'],

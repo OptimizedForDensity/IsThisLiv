@@ -83,10 +83,21 @@
 			data = data;
 		}
 	};
+
+	function utcToLocal(utcDateString: string): Date {
+		const utcDate = new Date(utcDateString);
+		return new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+	}
+
+	function localToUtc(localDate: Date): string {
+		const utcDate = new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
+		return utcDate.toISOString().slice(0, 19).replace('T', ' ');
+	}
+
 	let saving = false;
 	const saveData = async (close = false) => {
 		saving = true;
-		let formattedDate = datePicker?.['$$']?.ctx?.[0];
+		let formattedDate = utcToLocal(data.date);
 		await api(fetch, '/sql/matchSave/', {
 			data: Object.assign(data, { date: formattedDate })
 		});
