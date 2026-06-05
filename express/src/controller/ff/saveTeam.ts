@@ -24,7 +24,7 @@ export async function saveTeam(req: Request) {
     });
     const firstKO = await db.query.Match.findFirst({
       orderBy: Match.utcTime,
-      where: and(eq(Match.cupID, cupID), like(Match.round, "Round of %")),
+      where: and(eq(Match.cupID, cupID), like(Match.round, "Survival Round %")),
     });
     const existing = await db.query.Fantasy.findFirst({
       where: eq(Fantasy.teamID, teamID),

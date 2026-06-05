@@ -1,7 +1,7 @@
+import { SQL, and, eq, gt, inArray, sum } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
 import { Match, Performance, Player, RosterOrder } from "../../db/schema";
-import { and, eq, gt, inArray, SQL, SQLWrapper, sum } from "drizzle-orm";
 
 export async function getData(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function getData(req: Request) {
       .select()
       .from(Match)
       .where(
-        and(eq(Match.cupID, req.body.cupID), eq(Match.round, "Round of 16"))
+        and(eq(Match.cupID, req.body.cupID), eq(Match.round, "Survival Round 1"))
       );
     let where: SQL<unknown>;
     if (koMatches.length) {
