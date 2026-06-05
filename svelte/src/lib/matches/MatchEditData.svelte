@@ -6,7 +6,9 @@
 	export let data: MatchStat;
 	export let close: Function;
 	export let getData: Function;
-	let datePicker: DateInput;
+	let pickedDate: Date = data.date instanceof Date
+		? data.date
+		: new Date(String(data.date).replace(' ', 'T') + 'Z');
 	type Event = {
 		eventID?: number;
 		matchID?: number;
@@ -97,11 +99,14 @@
 	let saving = false;
 	const saveData = async (close = false) => {
 		saving = true;
-		let formattedDate = utcToLocal(data.date);
+		const formattedDate = utcToLocal(pickedDate);
 		await api(fetch, '/sql/matchSave/', {
 			data: Object.assign(data, { date: formattedDate })
 		});
 		data = await getData();
+		pickedDate = data.date instanceof Date
+			? data.date
+			: new Date(String(data.date).replace(' ', 'T') + 'Z');
 		saving = false;
 		if (close) {
 			closeMatchEdit();
@@ -366,8 +371,7 @@
 				</td>
 				<td>
 					<DateInput
-						bind:this={datePicker}
-						bind:value={data.date}
+						bind:value={pickedDate}
 						format="yyyy-MM-dd HH:mm:ss"
 						placeholder=""
 						valid={true}
@@ -513,7 +517,7 @@
 			>
 		</h3>
 		<scorecards>
-			{#each data.performances, i}
+			{#each data.performances as _, i}
 				<div>
 					/{data.teams[i + 1]}/
 					<table>
@@ -528,7 +532,7 @@
 							<th>Sub Off</th>
 							<th>MotM</th>
 						</tr>
-						{#each Array(15), j}
+						{#each Array(15) as _, j}
 							<tr>
 								<td>{data.performances[i][j]?.performance.perfID || ''}</td>
 								<td
@@ -648,8 +652,8 @@
 										bind:value={data.events[i][j].event.eventType}
 									>
 										<option></option>
-										{#each Object.keys(data.eventType) as i}
-											<option value={parseInt(i)}>{data.eventType[parseInt(i)]}</option>
+										{#each Object.keys(data.eventType) as eventTypeKey}
+											<option value={parseInt(eventTypeKey)}>{data.eventType[parseInt(eventTypeKey)]}</option>
 										{/each}
 									</select></td
 								>
