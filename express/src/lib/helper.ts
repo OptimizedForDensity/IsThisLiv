@@ -146,6 +146,8 @@ export async function playerLink(
   let urlname = name.replace(/./gm, function (s) {
     return s.match(/[a-z0-9\s]+/i) ? s : "";
   });
+  // fix name if they're something like <Walls>
+  name = name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   if (!link) return name;
   return (
     (icon == "left" ? teamIcon(team) : "") +
