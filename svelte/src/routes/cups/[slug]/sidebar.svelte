@@ -6,7 +6,7 @@
     export let data:MainRes;
     let select:HTMLSelectElement;
     function changeCup(id=0){
-		goto(select.value + '-' + select.options[select.selectedIndex].text.replace(" ","-"))
+		goto('/cups/' + select.value + '-' + select.options[select.selectedIndex].text.replace(" ","-"))
 	}
     let cupsData = api(fetch, '/cups/list');
 </script>

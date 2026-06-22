@@ -1,3 +1,6 @@
 <script>
-	if (typeof window !== 'undefined') window.location = 'managers/days';
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	onMount(() => goto('/managers/days'));
 </script>
