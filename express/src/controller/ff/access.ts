@@ -1,6 +1,7 @@
 import { and, desc, eq, like } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
+import { getKnockoutTeams } from "../../db/commonFn";
 import {
   Cup,
   Fantasy,
@@ -17,38 +18,34 @@ export async function login(req: Request) {
     team = team.trim();
     if (team.length == 0) return { error: "Please enter a team name" };
     const cup = await db.query.Cup.findFirst({ orderBy: desc(Cup.start) });
-    const lastGroup = await db.query.Match.findFirst({
-      orderBy: desc(Match.utcTime),
-      where: and(eq(Match.cupID, cup.cupID), like(Match.round, "%Group%")),
-    });
     const existing = await db.query.Fantasy.findFirst({
       where: and(eq(Fantasy.cupID, cup.cupID), eq(Fantasy.name, team)),
     });
     if (!(existing?.name?.length > 0)) return { error: "Team not found" };
     if (!checkPassword(prv, existing.pub))
       return { error: "Incorrect password" };
-    let stage = 0;
-    if (
-      typeof lastGroup?.utcTime !== "undefined" &&
-      new Date().getTime() > lastGroup.utcTime.getTime()
-    )
-      stage = 1;
+
+    const groupMatches = await db
+      .select({ winningTeam: Match.winningTeam })
+      .from(Match)
+      .where(
+        and(
+          eq(Match.cupID, cup.cupID),
+          eq(Match.official, 1),
+          eq(Match.valid, 1),
+          like(Match.round, "Group %")
+        )
+      );
+    const groupStageComplete =
+      groupMatches.length > 0 &&
+      groupMatches.every((m) => m.winningTeam?.length > 0);
+    let stage = groupStageComplete ? 1 : 0;
     const starting = [];
     const bench = [];
     const required = [];
     const groupsFormation = { DEF: 0, MID: 0, FWD: 0 };
 
-    const koMatches = await db
-      .select()
-      .from(Match)
-      .where(and(eq(Match.cupID, cup.cupID), eq(Match.round, "Survival Round 1")));
-    let koTeams: string[] = [];
-    if (koMatches.length) {
-      for (const match of koMatches) {
-        koTeams.push(match.homeTeam);
-        koTeams.push(match.awayTeam);
-      }
-    }
+    const koTeams = await getKnockoutTeams(cup.cupID);
     let players = await db
       .select({ player: FantasyPlayer })
       .from(FantasyPlayer)

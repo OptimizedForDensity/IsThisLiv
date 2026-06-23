@@ -12,7 +12,9 @@ import {
   or,
   sum,
 } from "drizzle-orm";
+import { union } from "drizzle-orm/mysql-core";
 import { db } from ".";
+import { assistTypes, goalTypes, goalTypesOG } from "../lib/helper";
 import {
   Cup,
   Event,
@@ -24,8 +26,6 @@ import {
   RosterOrder,
   Round,
 } from "./schema";
-import { union } from "drizzle-orm/mysql-core";
-import { assistTypes, goalTypes } from "../lib/helper";
 export async function getCup(id: number) {
   return await db.query.Cup.findFirst({
     where: (c, { eq }) => eq(c.cupID, id),
@@ -44,6 +44,129 @@ export async function getCupTeams(id: number) {
         .where(and(eq(Match.cupID, id), eq(Match.official, 1)))
     )
   ).map((x) => x.team);
+}
+// group stage standing ranked by pts -> GD -> GF
+export async function getGroupStandings(
+  cupID: number
+): Promise<
+  Record<
+    string,
+    Array<{
+      team: string;
+      pld: number;
+      w: number;
+      d: number;
+      l: number;
+      gf: number;
+      ga: number;
+      gd: number;
+      pts: number;
+    }>
+  >
+> {
+  const groupMatches = await db
+    .select()
+    .from(Match)
+    .where(
+      and(
+        eq(Match.cupID, cupID),
+        eq(Match.official, 1),
+        eq(Match.valid, 1),
+        like(Match.round, "Group %")
+      )
+    );
+
+  type Row = {
+    team: string;
+    pld: number;
+    w: number;
+    d: number;
+    l: number;
+    gf: number;
+    ga: number;
+    gd: number;
+    pts: number;
+  };
+  const groups: Record<string, Record<string, Row>> = {};
+  const ensure = (round: string, team: string): Row => {
+    (groups[round] ??= {});
+    return (groups[round][team] ??= {
+      team,
+      pld: 0,
+      w: 0,
+      d: 0,
+      l: 0,
+      gf: 0,
+      ga: 0,
+      gd: 0,
+      pts: 0,
+    });
+  };
+
+  for (const m of groupMatches) {
+    let homeG = 0;
+    let awayG = 0;
+    for (const e of await getEvents({ matchID: m.matchID })) {
+      const t = e.player.team;
+      if (goalTypes.includes(e.event.eventType)) {
+        if (t === m.homeTeam) homeG++;
+        else awayG++;
+      } else if (goalTypesOG.includes(e.event.eventType)) {
+        // own goals are opponent goals
+        if (t === m.homeTeam) awayG++;
+        else homeG++;
+      }
+    }
+
+    const home = ensure(m.round, m.homeTeam);
+    const away = ensure(m.round, m.awayTeam);
+    home.pld++;
+    away.pld++;
+    home.gf += homeG;
+    home.ga += awayG;
+    away.gf += awayG;
+    away.ga += homeG;
+    if (m.winningTeam === "draw") {
+      home.d++;
+      away.d++;
+      home.pts++;
+      away.pts++;
+    } else if (m.winningTeam === m.homeTeam) {
+      home.w++;
+      home.pts += 3;
+      away.l++;
+    } else if (m.winningTeam === m.awayTeam) {
+      away.w++;
+      away.pts += 3;
+      home.l++;
+    }
+    // if none of the above, no winner has been entered yet
+  }
+
+  const standings: Record<string, Row[]> = {};
+  for (const round in groups) {
+    for (const team in groups[round]) {
+      groups[round][team].gd = groups[round][team].gf - groups[round][team].ga;
+    }
+
+    standings[round] = Object.values(groups[round]).sort((a, b) =>
+      b.pts !== a.pts
+        ? b.pts - a.pts
+        : b.pd !== a.gd
+          ? b.gd - a.pld
+          : b.gf - a.gf
+    );
+  }
+  return standings;
+}
+
+export async function getKnockoutTeams(cupID: number): Promise<string[]> {
+  const standings = await getGroupStandings(cupID);
+  const teams: string[] = [];
+  for (const round in standings) {
+    teams.push(...standings[round].slice(0, 2).map((r) => r.team));
+  }
+  return teams;
 }
 export async function getCups(options?: {
   excludeFriendlies?: boolean;

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import fs from "fs";
-import { getCupTeams, getPlayers } from "../../db/commonFn";
 import { db } from "../../db";
+import { getCupTeams, getPlayers } from "../../db/commonFn";
 import { Player } from "../../db/schema";
 export async function uploadEditFile(req: Request, res: Response) {
   //@ts-ignore

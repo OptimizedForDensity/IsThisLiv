@@ -20,9 +20,29 @@
 	let data: Data;
 	let req = api(fetch, '/ff/getData', { cupID: $ffStore.cupID }).then((r) => {
 		data = r;
+		pruneMissing();
 		checkErrors();
 		return r;
 	}) as Promise<Data>;
+
+	// remove players who are no longer present
+	let pruned: number[] = [];
+	function pruneMissing() {
+		if (!data?.players) return;
+		pruned = [];
+		for (const type of ['starting', 'bench'] as const) {
+			for (const playerID of Array.from($ffStore[type])) {
+				if (!data.players[playerID]) {
+					$ffStore[type].delete(playerID);
+					pruned.push(playerID);
+				}
+			}
+		}
+		if ($ffStore.cap && !data.players[$ffStore.cap]) $ffStore.cap = 0;
+		if ($ffStore.vice && !data.players[$ffStore.vice]) $ffStore.vice = 0;
+		$ffStore.required = $ffStore.required.filter((id) => data.players[id]);
+		if (pruned.length) $ffStore = $ffStore;
+	}
 
 	let filters = {
 		team: new Set(),
@@ -129,7 +149,9 @@
 		};
 		for (let type of ['starting', 'bench'] as const) {
 			for (let playerID of Array.from($ffStore[type])) {
-				const { regPos, medal } = data.players[playerID];
+				const entry = data.players[playerID];
+				if (!entry) continue;
+				const { regPos, medal } = entry;
 				roster[type][data.posOrder[regPos]]++;
 				if (medal !== '') roster[type][medal]++;
 				if (roster[type][regPos] == undefined) roster[type][regPos] = 0;
@@ -160,6 +182,7 @@
 		if ($ffStore.cap == 0) errorsArr.push('Need a captain');
 		if ($ffStore.vice == 0) errorsArr.push('Need a vice captain');
 		for (const required of $ffStore.required) {
+			if (!data.players[required]) continue;
 			if (!($ffStore.starting.has(required) || $ffStore.bench.has(required))) {
 				errorsArr.push(
 					`Need to have /${data.players[required].team}/ - ${data.players[required].name} in your roster`
@@ -195,7 +218,9 @@
 		let benchMedal = false;
 		for (let type of ['starting', 'bench'] as const) {
 			for (let playerID of Array.from($ffStore[type])) {
-				const { team, regPos, medal } = data.players[playerID];
+				const entry = data.players[playerID];
+				if (!entry) continue;
+				const { team, regPos, medal } = entry;
 				if (teamCount[team] == undefined) teamCount[team] = 0;
 				teamCount[team]++;
 				roster[type][data.posOrder[regPos]]++;
@@ -228,7 +253,9 @@
 		return true;
 	}
 	function sortTable(set: Set<number>) {
-		return Array.from(set).sort((a, b) => {
+		return Array.from(set)
+			.filter((id) => data.players[id])
+			.sort((a, b) => {
 			let playerA = data.players[a];
 			let playerB = data.players[b];
 			if (data.pos.indexOf(playerA.regPos) > data.pos.indexOf(playerB.regPos)) return 1;
@@ -258,7 +285,9 @@
 		saving = false;
 	}
 	function formatPlayerExportRow(x: number) {
-		return `/${data.players[x].team}/ ${data.players[x].regPos} ${data.players[x].name} ${$ffStore.cap == x ? '(C)' : ''}${$ffStore.vice == x ? '(V)' : ''}`;
+		const p = data.players[x];
+		if (!p) return '';
+		return `/${p.team}/ ${p.regPos} ${p.name} ${$ffStore.cap == x ? '(C)' : ''}${$ffStore.vice == x ? '(V)' : ''}`;
 	}
 	function getString() {
 		let arr = [...Array.from($ffStore.starting), 'b', ...Array.from($ffStore.bench)];
@@ -277,6 +306,11 @@
 		<div id="containers">
 			<div>
 				<h3>{$ffStore.name}</h3>
+				{#if pruned.length}
+					<container id="errors">
+						{pruned.length} saved player{pruned.length == 1 ? ' was' : 's were'} removed because they are no longer in the current player pool. Review and re-save your team.
+					</container>
+				{/if}
 				<div id="teamContainer">
 					{#each types as type}
 						<container>
@@ -308,13 +342,13 @@
 					{/each}
 				</div>
 				Captain<select bind:value={$ffStore.cap}>
-					{#each [...Array.from($ffStore.starting), ...Array.from($ffStore.bench)].filter((x) => x != $ffStore.vice) as playerID}
+					{#each [...Array.from($ffStore.starting), ...Array.from($ffStore.bench)].filter((x) => x != $ffStore.vice && data.players[x]) as playerID}
 						<option value={playerID}>{data.players[playerID].name}</option>
 					{/each}
 				</select>
 				Vice
 				<select bind:value={$ffStore.vice}>
-					{#each [...Array.from($ffStore.starting), ...Array.from($ffStore.bench)].filter((x) => x != $ffStore.cap) as playerID}
+					{#each [...Array.from($ffStore.starting), ...Array.from($ffStore.bench)].filter((x) => x != $ffStore.cap && data.players[x]) as playerID}
 						<option value={playerID}>{data.players[playerID].name}</option>
 					{/each}
 				</select>

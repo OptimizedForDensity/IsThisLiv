@@ -1,6 +1,6 @@
+import { desc, eq } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
-import { desc, eq } from "drizzle-orm";
 import { Cup, Fantasy } from "../../db/schema";
 
 export async function teamList(req: Request) {

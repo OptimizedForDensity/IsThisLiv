@@ -1,24 +1,15 @@
 import { SQL, and, eq, gt, inArray, sum } from "drizzle-orm";
 import { Request } from "express";
 import { db } from "../../db";
-import { Match, Performance, Player, RosterOrder } from "../../db/schema";
+import { getKnockoutTeams } from "../../db/commonFn";
+import { Performance, Player, RosterOrder } from "../../db/schema";
 
 export async function getData(req: Request) {
   try {
     if (!(parseInt(req.body.cupID) > 0)) return {};
-    const koMatches = await db
-      .select()
-      .from(Match)
-      .where(
-        and(eq(Match.cupID, req.body.cupID), eq(Match.round, "Survival Round 1"))
-      );
+    const koTeams = await getKnockoutTeams(req.body.cupID);
     let where: SQL<unknown>;
-    if (koMatches.length) {
-      let koTeams: string[] = [];
-      for (const match of koMatches) {
-        koTeams.push(match.homeTeam);
-        koTeams.push(match.awayTeam);
-      }
+    if (koTeams.length) {
       where = and(
         eq(Player.cupID, req.body.cupID),
         inArray(Player.team, koTeams)
