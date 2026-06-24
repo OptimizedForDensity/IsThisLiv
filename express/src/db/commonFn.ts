@@ -152,8 +152,8 @@ export async function getGroupStandings(
     standings[round] = Object.values(groups[round]).sort((a, b) =>
       b.pts !== a.pts
         ? b.pts - a.pts
-        : b.pd !== a.gd
-          ? b.gd - a.pld
+        : b.gd !== a.gd
+          ? b.gd - a.gd
           : b.gf - a.gf
     );
   }
