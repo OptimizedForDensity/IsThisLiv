@@ -6,6 +6,20 @@
 
 	let teamData: { headers: Array<string>, data: Array<Record<string, string | number>> };
 
+	let hideInactive: boolean = false;
+
+	const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+	const isActive = (row: Record<string, string | number>) => {
+		const last = row.lastMatch;
+		if (!last) return false;
+		return (Date.now() - new Date(last).getTime()) <= YEAR_MS;
+	};
+
+	const displayValues = (row: Record<string, string | number>) =>
+		Object.entries(row)
+			.filter(([key]) => key !== 'lastMatch')
+			.map(([, value]) => value);
+
 	let sortAsc = true;
 	let sortField = -1;
 	const sort = (field: number) => {
@@ -43,6 +57,10 @@
 	<h1>Team Stats</h1>
 	{#if teamData}
 		<p>Click on a header to sort</p>
+		<label>
+			<input type="checkbox" bind:checked={hideInactive}/>
+			Only show teams active within the past year
+		</label>
 		<table>
 			<thead>
 				<tr>
@@ -57,10 +75,10 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each teamData.data as row, i}
+				{#each (hideInactive ? teamData.data.filter(isActive) : teamData.data) as row, i}
 					<tr>
 						<td>{i + 1}</td>
-						{#each Object.values(row) as field,j}
+						{#each displayValues(row) as field, j}
 							{#if j == 0}
 							<td style:text-align='left'><TeamIcon team={field.toString()}/><TeamLink team={field.toString()} /></td>
 							{:else}

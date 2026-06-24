@@ -41,6 +41,7 @@ export async function overall(req: Request) {
       eliteW:number;
       eliteL:number;
       eliteEff:number;
+      lastMatch: string | null;
     }
   > = {};
   const matches = await db
@@ -80,9 +81,14 @@ export async function overall(req: Request) {
           eliteW:0,
           eliteL:0,
           eliteEff:0,
+          lastMatch: null,
         };
       }
       const stat = teams[team];
+      if (match.utcTime
+          && (stat.lastMatch == null || new Date(match.utcTime).getTime() > new Date(stat.lastMatch).getTime())) {
+        stat.lastMatch = new Date(match.utcTime).toISOString();
+      }
       if (cup.cupType == 1) {
         if (typeof stat.elites !== "number")
           stat.elites.add(cup.season + cup.year);
