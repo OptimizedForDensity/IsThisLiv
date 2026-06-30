@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import { page } from '$app/stores';
-	import { api } from '$lib/helper';
+	import { api, reloadCanonical } from '$lib/helper';
 	import TeamIcon from '$lib/teamIcon.svelte';
 	import TeamLink from '$lib/teamLink.svelte';
 	import { User } from '$lib/user';
@@ -25,7 +25,7 @@
 	let input:HTMLInputElement;
 	async function save(){
 		await api(fetch, '/sql/updateLinkName',{linkID:(await data).linkID,name})
-		location.reload();
+		reloadCanonical();
 	}
 </script>
 

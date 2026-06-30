@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import { api } from "$lib/helper";
+	import { api, reloadCanonical } from "$lib/helper";
 	import Modal from "$lib/modal.svelte";
 	import TeamRoster from "$lib/teamRoster.svelte";
 	import { User } from "$lib/user";
@@ -30,7 +30,7 @@
             players[p] = players[p].player
         }
         await api(fetch, '/sql/updateCupTeam',{players})
-        location.reload();
+        reloadCanonical();
     }
 </script>
 <Modal close={clear} title={`/${team}/`}>

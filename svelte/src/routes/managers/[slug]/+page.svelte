@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import { page } from '$app/stores';
-	import { api } from '$lib/helper';
+	import { api, reloadCanonical } from '$lib/helper';
 	import Modal from '$lib/modal.svelte';
 	import TeamIcon from '$lib/teamIcon.svelte';
 	import { User } from '$lib/user';
@@ -34,7 +34,7 @@
 			editData.action = action;
 			await api(fetch, '/sql/processManager/',editData);
 		}
-		location.reload();
+		reloadCanonical();
 	}
 
 </script>

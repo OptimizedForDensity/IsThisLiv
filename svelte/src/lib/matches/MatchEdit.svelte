@@ -1,11 +1,11 @@
 <script lang='ts'>
-	import { api } from '$lib/helper';
+	import { api, reloadCanonical } from '$lib/helper';
 	import Modal from '$lib/modal.svelte';
 	import MatchEditData from './MatchEditData.svelte';
 
 	export let matchID: number;
 	function close() {
-		location.reload()
+		reloadCanonical();
 	}
 	async function getData(){
 		let returnObject = await api(fetch, '/sql/matchDisplay/' + matchID);

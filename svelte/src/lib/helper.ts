@@ -1,4 +1,9 @@
 import CONFIG from '$lib/config.json';
+
+export function reloadCanonical() {
+  location.assign(location.pathname.replace(/\/?$/, '/') + location.search + location.hash);
+}
+
 export function cupShort(cupName:string) {
   let cupWords = cupName.split(" ");
   let shortName = "";
