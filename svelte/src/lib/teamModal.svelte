@@ -36,9 +36,9 @@
         if (!confirm(`Delete player "${name}" (ID ${playerID})? This cannot be undone.`)) return;
         updating = true;
         let res = await api(fetch, '/sql/deleteCupPlayer', {playerID});
-        if (res?.error) {
+        if (!res || res.error) {
             updating = false;
-            alert(res.error);
+            alert(res?.error ?? 'Failed to delete player.');
             return;
         }
         reloadCanonical();
