@@ -274,6 +274,21 @@
 	checkChange();
 	function checkChange() {
 		errors = [];
+		const isBlankOrInt = (v: unknown) => {
+			if (v === '' || v === undefined || v === null) return true;
+			return /^-?\d+$/.test(String(v).trim());
+		};
+		const timeOk = (raw: unknown, maxMin: number) => {
+			if (raw === '' || raw === undefined || raw === null) return true;
+			const s = String(raw).trim();
+			if (!/^-?\d+$/.test(s)) return false;
+			const t = parseInt(s, 10);
+			return t === -1 || (t >= 0 && t <= maxMin);
+		};
+		const getStat = (j: number, i: number, name: string) => {
+			const row = data.matchStats?.[j]?.[i]?.find((r) => r.name === name);
+			return row ? parseInt(row.value) : NaN;
+		};
 		let possession = [0, 0, 0];
 		for (const i of [0, 1]) {
 			let statSaves = 0;
@@ -330,6 +345,34 @@
 			if (playTime % (finalPeriod == 2 ? 120 : 90) !== 0)
 				errors.push(`${sI[i]} sub on/off times has inconsistencies`);
 			if (statSaves !== perfSaves) errors.push(`${sI[i]} saves don't add up to stat card`);
+			const maxMinute = finalPeriod == 2 ? 120 : 90;
+			for (const event of data.events[i]) {
+				if (!timeOk(event?.event?.regTime, maxMinute)) {
+					errors.push(`${sI[i]} event regTime "${event?.event?.regTime}" should either be -1 or in range [0, ${maxMinute}]`);
+				}
+				if (!timeOk(event?.event?.injTime, 15)) {
+					errors.push(`${sI[i]} event injTime "${event?.event?.injTime}" should either be -1 or in range [0, 15]`);
+				}
+			}
+			for (const perf of data.performances[i]) {
+				if (!timeOk(perf?.performance?.subOn, maxMinute)) {
+					errors.push(`${sI[i]} ${perf?.player?.playerID ?? ''} subOn time "${perf?.performance?.subOn}" should either be -1 or in range [0, ${maxMinute}]`);
+				}
+				if (!timeOk(perf?.performance?.subOff, maxMinute)) {
+					errors.push(`${sI[i]} ${perf?.player?.playerID ?? ''} subOff time "${perf?.performance?.subOff}" should either be -1 or in range [0, ${maxMinute}]`);
+				}
+			}
+		}
+		for (const j of [0, 1, 2]) {
+			for (const i of [0, 1]) {
+				if (!data.matchStats?.[j]?.[i]) continue;
+				for (const row of data.matchStats[j][i]) {
+					if (['SQL ID', 'Passes', '(Made)'].includes(row.name)) continue;
+					if (!isBlankOrInt(row.value)) {
+						errors.push(`${sI[i]} period ${j}: "${row.name}" = "${row.value}" is not blank or an integer`);
+					}
+				}
+			}
 		}
 		for (const j of [0, 1, 2]) {
 			if (j < 2 && possession[j] != 100) {
@@ -418,7 +461,7 @@
 					><input
 						style="transform:scale(2)"
 						type="checkbox"
-						id="official"
+						id="valid"
 						bind:checked={data.valid}
 					/></td
 				>
