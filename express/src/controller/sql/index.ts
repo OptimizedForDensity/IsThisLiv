@@ -1,26 +1,27 @@
 import express from "express";
 import multer from "multer";
-import { matchDisplay } from "./matchDisplay";
-import { uploadEditFile } from "./editFile";
-import { cupTeamDisplay } from "./cupTeamDisplay";
-import { linkPlayer } from "./linkPlayer";
-import user from "./user";
-import { clearCache } from "./clearCache";
-import { matchSave } from "./matchSave";
 import { db } from "../../db";
 import { Round } from "../../db/schema";
+import { calcAllCups, calcAllTeams } from "../records/records";
+import { clearCache } from "./clearCache";
+import { cupTeamDisplay } from "./cupTeamDisplay";
+import { deleteCupPlayer } from "./deleteCupPlayer";
+import { uploadEditFile } from "./editFile";
+import { getMaintenance } from "./getMaintenance";
+import { groupStage } from "./groupStage";
+import { linkPlayer } from "./linkPlayer";
 import { matchAdd } from "./matchAdd";
+import { matchDisplay } from "./matchDisplay";
+import { matchHistory } from "./matchHistory";
+import { matchSave } from "./matchSave";
 import { newCup } from "./newCup";
 import { processManager } from "./processManager";
+import { rebuildCurrentCup } from "./rebuildCurrentCup";
+import { getStadiumLinks, linkStadium, unlinkStadium } from "./stadiumLinks";
 import { updateCupTeam } from "./updateCupTeam";
 import { updateLinkName } from "./updateLinkName";
-import { groupStage } from "./groupStage";
-import { getMaintenance } from "./getMaintenance";
-import { calcAllCups, calcAllTeams } from "../records/records";
-import { rebuildCurrentCup } from "./rebuildCurrentCup";
-import { matchHistory } from "./matchHistory";
-import { getStadiumLinks, linkStadium, unlinkStadium } from "./stadiumLinks";
 import { uploadIcon } from "./uploadIcon";
+import user from "./user";
 
 const router = express.Router();
 router.use("/user", user);
@@ -70,6 +71,9 @@ router.use("/processManager", async (req, res, next) => {
 });
 router.use("/updateCupTeam", async (req, res, next) => {
   res.send(await updateCupTeam(req));
+});
+router.use("/deleteCupPlayer", async (req, res, next) => {
+  res.send(await deleteCupPlayer(req));
 });
 router.use("/updateLinkName", async (req, res, next) => {
   res.send(await updateLinkName(req));

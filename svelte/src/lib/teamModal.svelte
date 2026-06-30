@@ -32,6 +32,17 @@
         await api(fetch, '/sql/updateCupTeam',{players})
         reloadCanonical();
     }
+    async function deletePlayer(playerID: number, name: string) {
+        if (!confirm(`Delete player "${name}" (ID ${playerID})? This cannot be undone.`)) return;
+        updating = true;
+        let res = await api(fetch, '/sql/deleteCupPlayer', {playerID});
+        if (res?.error) {
+            updating = false;
+            alert(res.error);
+            return;
+        }
+        reloadCanonical();
+    }
 </script>
 <Modal close={clear} title={`/${team}/`}>
     {#await data}
@@ -49,6 +60,7 @@
                 <th>Pos</th>
                 <th>#</th>
                 <th>Link</th>
+                {#if $User.access >= 3}<th></th>{/if}
             </tr>
         {#each data.players as p,i}
             <tr>
@@ -70,6 +82,14 @@
                     <option value={link.linkID}>{link.name}</option>
                     {/each}
                 </select></td>
+                {#if $User.access >= 3}
+                <td><button
+                    class="delete"
+                    title="Delete player"
+                    disabled={updating}
+                    on:click={()=>{deletePlayer(p.player.playerID, p.player.playerName)}}
+                >x</button></td>
+                {/if}
             </tr>
         {/each}
 	</tbody>
@@ -90,5 +110,16 @@
     table{
         display:inline-block;
         vertical-align: top;
+    }
+    button.delete{
+        color: #b00;
+        font-weight: bold;
+        line-height: 1;
+        padding: 0.15rem 0.4rem;
+        cursor: pointer;
+    }
+    button.delete:disabled{
+        cursor: default;
+        opacity: 0.5;
     }
 </style>
