@@ -63,12 +63,12 @@
 <div id="managerContainer">
 	<div id="filters">
 		Sort by |
-		<a href="/managers/days">Total Days</a> |
-		<a href="/managers/start">Start Date</a> |
-		<a href="/managers/end">End Date</a> |
-		<a href="/managers/board">Board</a> |
-		<a href="/managers/eff">Efficiency</a> |
-		<a href="/managers/points">Avg Pts</a> | Filter by |
+		<a href="/managers/days/">Total Days</a> |
+		<a href="/managers/start/">Start Date</a> |
+		<a href="/managers/end/">End Date</a> |
+		<a href="/managers/board/">Board</a> |
+		<a href="/managers/eff/">Efficiency</a> |
+		<a href="/managers/points/">Avg Pts</a> | Filter by |
 		<input type="radio" bind:group={filter} name="filter" value="All" checked /> All |
 		<input type="radio" bind:group={filter} name="filter" value="Active" /> Active |
 		<input type="radio" bind:group={filter} name="filter" value="Inactive" /> Inactive
