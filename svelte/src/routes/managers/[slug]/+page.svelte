@@ -5,13 +5,16 @@
 	import TeamIcon from '$lib/teamIcon.svelte';
 	import { User } from '$lib/user';
 	let filter = 'All';
-	let sort = '';
-	const loadData = async (sort) => {
-		return await api(fetch, '/managers',{sort});
+	// Derive sort directly from the store — always in sync
+	$: sort = $page.params.slug ?? '';
+
+	// Re-runs automatically whenever sort changes
+	$: dataPromise = loadData(sort);
+
+	const loadData = async (sort: string) => {
+		return await api(fetch, '/managers', { sort });
 	};
-	page.subscribe((r) => {
-		sort = r.params.slug;
-	});
+
 	let newRecord = false;
 	function edit(run){
 		if($User.access >0){
@@ -76,7 +79,7 @@
 			<button on:click={()=>{showModal=true;newRecord=true}}>New</button>
 		{/if}
 	</div>
-	{#await loadData(sort)}
+	{#await dataPromise}
 		Loading...
 	{:then data}
 		<div id="tableContainer">
