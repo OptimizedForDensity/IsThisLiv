@@ -161,6 +161,7 @@ export function dateFormat(
   type: "med" | "short" | "number" = "med"
 ) {
   let options: any = {
+    timeZone: 'UTC',
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -174,9 +175,9 @@ export function dateFormat(
   if (typeof dateString == "string") dateString = new Date(dateString);
   if (type == "number")
     return (
-      dateString.getFullYear() +
+      dateString.getUTCFullYear() +
       "-" +
-      (dateString.getMonth() + 1).toString().padStart(2, "0") +
+      (dateString.getUTCMonth() + 1).toString().padStart(2, "0") +
       "-" +
       dateString.getUTCDate().toString().padStart(2, "0")
     );
