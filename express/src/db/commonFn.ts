@@ -160,7 +160,28 @@ export async function getGroupStandings(
   return standings;
 }
 
+export async function isGroupStageComplete(cupID: number): Promise<boolean> {
+  const groupMatches = await db
+    .select({ winningTeam: Match.winningTeam })
+    .from(Match)
+    .where(
+      and(
+        eq(Match.cupID, cupID),
+        eq(Match.official, 1),
+        eq(Match.valid, 1),
+        like(Match.round, "Group %")
+      )
+    );
+  return (
+    groupMatches.length > 0 &&
+    groupMatches.every((m) => m.winningTeam?.length > 0)
+  );
+}
+
 export async function getKnockoutTeams(cupID: number): Promise<string[]> {
+  // check if group stage is still ongoing
+  if (!(await isGroupStageComplete(cupID))) return [];
+
   const standings = await getGroupStandings(cupID);
   const teams: string[] = [];
   for (const round in standings) {
@@ -168,6 +189,7 @@ export async function getKnockoutTeams(cupID: number): Promise<string[]> {
   }
   return teams;
 }
+
 export async function getCups(options?: {
   excludeFriendlies?: boolean;
   cupList?: number[];

@@ -101,7 +101,7 @@ export default async function calculate(req: Request) {
           if (perf.performance.subOff - perf.performance.subOn >= 60) {
             tempP += 4; //def/gk clean sheet
           } else {
-            tempP == 3; //def/gk partial clean sheet
+            tempP += 3; //def/gk partial clean sheet
           }
         } else if (
           p.rosterorder.order < 10 &&
@@ -213,7 +213,7 @@ export default async function calculate(req: Request) {
     }
     if (cI < 17) {
       for (let i = 0; i < 17; i++) {
-        roster[i + 17] = roster[i];
+        roster[i + 17] = { ...roster[i] };
       }
     }
     for (let i = 0; i < 34; i++) {
